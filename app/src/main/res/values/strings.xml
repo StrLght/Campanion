@@ -3,5 +3,6 @@
 
     <string name="app_name">Campanion</string>
     <string name="hello_world">Hello world!</string>
+    <string name="switch_button">Switch</string>
 
 </resources>
