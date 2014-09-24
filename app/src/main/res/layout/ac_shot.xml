@@ -12,10 +12,18 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/switch_button"
+        android:text="@string/switch_button_text"
         android:textSize="14sp"
         android:id="@+id/switch_button"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/shutter_button_text"
+        android:id="@+id/shutter_button"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" />
 
 </RelativeLayout>

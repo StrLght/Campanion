@@ -3,6 +3,7 @@
 
     <string name="app_name">Campanion</string>
     <string name="hello_world">Hello world!</string>
-    <string name="switch_button">Switch</string>
+    <string name="switch_button_text">Switch</string>
+    <string name="shutter_button_text">Shutter</string>
 
 </resources>

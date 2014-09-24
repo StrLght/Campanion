@@ -26,22 +26,47 @@ public class ShotActivity extends Activity {
 	    }
 
 	    mCameraView = (CameraView) findViewById(R.id.camera_preview);
+	    final Button switch_button = (Button) findViewById(R.id.switch_button);
+	    final Button shutter_button = (Button) findViewById(R.id.shutter_button);
 
+	    mCameraView.setShutterCallback(new CameraView.ShutterCallback() {
+		    @Override
+		    public void onShutter() {
+		        setButtonsEnabled(false);
+		    }
+
+		    @Override
+		    public void postShutter() {
+			    setButtonsEnabled(true);
+		    }
+
+		    private void setButtonsEnabled(boolean enabled) {
+			    switch_button.setEnabled(enabled);
+			    shutter_button.setEnabled(enabled);
+		    }
+	    });
+
+	    switch_button.setOnClickListener(new OnSwitchListener());
 	    if (Camera.getNumberOfCameras() <= 1) {
-		    Button button = (Button) findViewById(R.id.switch_button);
-		    button.setOnClickListener(new OnSwitchListener());
-			button.setVisibility(View.INVISIBLE);
+		    switch_button.setEnabled(false);
+			switch_button.setVisibility(View.INVISIBLE);
 	    }
+
+	    shutter_button.setOnClickListener(new OnShutterListener());
     }
 
 	@Override
 	protected void onResume() {
 		super.onResume();
+
+		mCameraView.openCamera();
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
+
+		mCameraView.releaseCamera();
 	}
 
 	private class OnShutterListener implements View.OnClickListener {

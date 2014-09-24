@@ -18,10 +18,11 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 
 	private Camera mCamera;
 	private int mCameraId = -1;
-	private Camera.ShutterCallback mShutterCallback;
-	private Camera.PictureCallback mRawPictureCallback;
-	private Camera.PictureCallback mPostPictureCallback;
-	private Camera.PictureCallback mJpegPictureCallback;
+	private Camera.ShutterCallback mCameraShutterCallback;
+	private Camera.PictureCallback mCameraRawPictureCallback;
+	private Camera.PictureCallback mCameraPostPictureCallback;
+	private Camera.PictureCallback mCameraJpegPictureCallback;
+	private ShutterCallback mShutterCallback;
 
 
 	public CameraView(Context context)
@@ -45,20 +46,24 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 		getHolder().addCallback(this);
 	}
 
-	public void setShutterCallback(Camera.ShutterCallback shutterCallback) {
+	public void setShutterCallback(ShutterCallback shutterCallback) {
 		mShutterCallback = shutterCallback;
 	}
 
-	public void setRawPictureCallback(Camera.PictureCallback rawPictureCallback) {
-		mRawPictureCallback = rawPictureCallback;
+	public void setCameraShutterCallback(Camera.ShutterCallback cameraShutterCallback) {
+		mCameraShutterCallback = cameraShutterCallback;
 	}
 
-	public void setPostPictureCallback(Camera.PictureCallback postPictureCallback) {
-		mPostPictureCallback = postPictureCallback;
+	public void setCameraRawPictureCallback(Camera.PictureCallback cameraRawPictureCallback) {
+		mCameraRawPictureCallback = cameraRawPictureCallback;
 	}
 
-	public void setJpegPictureCallback(Camera.PictureCallback jpegPictureCallback) {
-		mJpegPictureCallback = jpegPictureCallback;
+	public void setCameraPostPictureCallback(Camera.PictureCallback cameraPostPictureCallback) {
+		mCameraPostPictureCallback = cameraPostPictureCallback;
+	}
+
+	public void setCameraJpegPictureCallback(Camera.PictureCallback cameraJpegPictureCallback) {
+		mCameraJpegPictureCallback = cameraJpegPictureCallback;
 	}
 
 	public void takePicture() {
@@ -66,7 +71,26 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 			return;
 		}
 
-		mCamera.takePicture(mShutterCallback, mRawPictureCallback, mPostPictureCallback, mJpegPictureCallback);
+		if (mShutterCallback != null) {
+			mShutterCallback.onShutter();
+		}
+
+		mCamera.takePicture(mCameraShutterCallback, mCameraRawPictureCallback, mCameraPostPictureCallback, new Camera.PictureCallback() {
+
+			@Override
+			public void onPictureTaken(byte[] bytes, Camera camera) {
+				if (mCameraJpegPictureCallback != null) {
+					mCameraJpegPictureCallback.onPictureTaken(bytes, camera);
+				}
+
+				restartPreview(getHolder());
+
+				if (mShutterCallback != null) {
+					mShutterCallback.postShutter();
+				}
+			}
+
+		});
 	}
 
 	private void findBackFacingCamera() {
@@ -104,7 +128,18 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 		startPreview(getHolder());
 	}
 
-	private void releaseCamera() {
+	public void openCamera() {
+		releaseCamera();
+
+		if (mCameraId < 0) {
+			findBackFacingCamera();
+		}
+
+		mCamera = Camera.open(mCameraId);
+		startPreview(getHolder());
+	}
+
+	public void releaseCamera() {
 		if (mCamera != null) {
 			mCamera.release();
 		}
@@ -188,7 +223,6 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 			findBackFacingCamera();
 		}
 
-		mCamera = Camera.open(mCameraId);
 	}
 
 	@Override
@@ -199,7 +233,10 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 	@Override
 	public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
 		stopPreview();
+	}
 
-		releaseCamera();
+	public static interface ShutterCallback {
+		void onShutter();
+		void postShutter();
 	}
 }
