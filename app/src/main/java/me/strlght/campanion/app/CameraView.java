@@ -99,7 +99,6 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 
 		for (int i = 0; i < Camera.getNumberOfCameras(); i++) {
 			Camera.getCameraInfo(i, info);
-
 			if (info.facing == Camera.CameraInfo.CAMERA_FACING_BACK) {
 				mCameraId = i;
 				break;
@@ -119,13 +118,9 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 
 		mCameraId = (mCameraId + 1) % Camera.getNumberOfCameras();
 
-		stopPreview();
-
 		releaseCamera();
 
-		mCamera = Camera.open(mCameraId);
-
-		startPreview(getHolder());
+		openCamera();
 	}
 
 	public void openCamera() {
@@ -140,6 +135,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 	}
 
 	public void releaseCamera() {
+		stopPreview();
 		if (mCamera != null) {
 			mCamera.release();
 		}

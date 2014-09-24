@@ -30,6 +30,7 @@ public class ShotActivity extends Activity {
 	    final Button shutter_button = (Button) findViewById(R.id.shutter_button);
 
 	    mCameraView.setShutterCallback(new CameraView.ShutterCallback() {
+
 		    @Override
 		    public void onShutter() {
 		        setButtonsEnabled(false);
@@ -44,6 +45,7 @@ public class ShotActivity extends Activity {
 			    switch_button.setEnabled(enabled);
 			    shutter_button.setEnabled(enabled);
 		    }
+
 	    });
 
 	    switch_button.setOnClickListener(new OnSwitchListener());
