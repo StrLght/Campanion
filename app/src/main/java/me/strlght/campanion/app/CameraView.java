@@ -10,6 +10,7 @@ import android.view.SurfaceView;
 import android.view.WindowManager;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Created by starlight on 9/22/14.
@@ -72,25 +73,35 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 		}
 
 		if (mShutterCallback != null) {
-			mShutterCallback.onShutter();
+			mShutterCallback.preShutter();
 		}
 
-		mCamera.takePicture(mCameraShutterCallback, mCameraRawPictureCallback, mCameraPostPictureCallback, new Camera.PictureCallback() {
+		mCamera.takePicture(new Camera.ShutterCallback() {
+			                    @Override
+			                    public void onShutter() {
+				                    if (mCameraShutterCallback != null) {
+					                    mCameraShutterCallback.onShutter();
+				                    }
 
-			@Override
-			public void onPictureTaken(byte[] bytes, Camera camera) {
-				if (mCameraJpegPictureCallback != null) {
-					mCameraJpegPictureCallback.onPictureTaken(bytes, camera);
+				                    if (mShutterCallback != null) {
+					                    mShutterCallback.postShutter();
+				                    }
+			                    }
+		                    },
+				mCameraRawPictureCallback,
+				mCameraPostPictureCallback,
+				new Camera.PictureCallback() {
+
+					@Override
+					public void onPictureTaken(byte[] bytes, Camera camera) {
+						if (mCameraJpegPictureCallback != null) {
+							mCameraJpegPictureCallback.onPictureTaken(bytes, camera);
+						}
+						restartPreview(getHolder());
+					}
+
 				}
-
-				restartPreview(getHolder());
-
-				if (mShutterCallback != null) {
-					mShutterCallback.postShutter();
-				}
-			}
-
-		});
+		);
 	}
 
 	private void findBackFacingCamera() {
@@ -131,6 +142,13 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 		}
 
 		mCamera = Camera.open(mCameraId);
+		mCamera.enableShutterSound(true);
+		Camera.Parameters parameters = mCamera.getParameters();
+		List<String> focusModes = parameters.getSupportedFocusModes();
+		if (focusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
+			parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+		}
+		mCamera.setParameters(parameters);
 		startPreview(getHolder());
 	}
 
@@ -144,7 +162,6 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 
 	private void restartPreview(SurfaceHolder holder) {
 		stopPreview();
-
 		startPreview(holder);
 	}
 
@@ -218,7 +235,6 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 		if (mCameraId < 0) {
 			findBackFacingCamera();
 		}
-
 	}
 
 	@Override
@@ -232,7 +248,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 	}
 
 	public static interface ShutterCallback {
-		void onShutter();
+		void preShutter();
 		void postShutter();
 	}
 }
