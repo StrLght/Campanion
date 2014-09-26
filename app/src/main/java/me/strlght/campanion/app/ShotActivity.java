@@ -39,9 +39,6 @@ public class ShotActivity extends Activity implements SensorEventListener {
 			actionBar.hide();
 		}
 
-		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
-		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
 		mCameraView = (CameraView) findViewById(R.id.camera_preview);
 		final Button switch_button = (Button) findViewById(R.id.switch_button);
 		final Button shutter_button = (Button) findViewById(R.id.shutter_button);
