@@ -7,7 +7,6 @@ import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.os.AsyncTask;
 
-
 /**
  * Created by starlight on 9/25/14.
  */
@@ -32,7 +31,7 @@ public class StabilizedPictureCallback implements Camera.PictureCallback {
 			int origwidth = img.getWidth();
 			int origheight = img.getHeight();
 
-			//TODO: fix scale and rotation
+			//TODO: fix rotation
 			float rotation = 0.0f;
 			int scaledwidth = Math.abs(
 					Double.valueOf(origwidth * Math.cos(rotation) - origheight * Math.sin(rotation))

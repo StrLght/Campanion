@@ -27,12 +27,15 @@ public class DefaultPictureCallback implements Camera.PictureCallback {
 
 		@Override
 		protected Void doInBackground(byte[]... bytes) {
-			Bitmap img = BitmapFactory.decodeByteArray(bytes[0], 0, bytes.length);
+			Bitmap img = BitmapFactory.decodeByteArray(bytes[0], 0, bytes[0].length);
 			int origwidth = img.getWidth();
 			int origheight = img.getHeight();
 
+			//TODO: fix rotation
+			int rotation = 0;
+
 			Matrix transformation = new Matrix();
-			transformation.preRotate(90);
+			transformation.preRotate(rotation);
 			img = Bitmap.createBitmap(img, 0, 0, origwidth, origheight, transformation, false);
 			Saver.save(mContext, img);
 			return null;
