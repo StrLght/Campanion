@@ -13,17 +13,37 @@ import android.os.AsyncTask;
 public class DefaultPictureCallback implements Camera.PictureCallback {
 
 	private Context mContext;
+	private float mPitch;
+	private float mRoll;
 
 	@Override
 	public void onPictureTaken(byte[] bytes, Camera camera) {
-		new SaveImageTask().execute(bytes);
+		new SaveImageTask(mPitch, mRoll).execute(bytes);
 	}
 
 	public void setContext(Context context) {
 		mContext = context;
 	}
 
+	public void setPitch(float pitch) {
+		mPitch = pitch;
+	}
+
+	public void setRoll(float roll) {
+		mRoll = roll;
+	}
+
 	private class SaveImageTask extends AsyncTask<byte[], Void, Void> {
+
+		private float mPitch;
+		private float mRoll;
+
+		SaveImageTask(float pitch, float roll) {
+			super();
+
+			mPitch = pitch;
+			mRoll = roll;
+		}
 
 		@Override
 		protected Void doInBackground(byte[]... bytes) {
@@ -32,10 +52,9 @@ public class DefaultPictureCallback implements Camera.PictureCallback {
 			int origheight = img.getHeight();
 
 			//TODO: fix rotation
-			int rotation = 0;
 
 			Matrix transformation = new Matrix();
-			transformation.preRotate(rotation);
+			// transformation.setRotate(rotation);
 			img = Bitmap.createBitmap(img, 0, 0, origwidth, origheight, transformation, false);
 			Saver.save(mContext, img);
 			return null;

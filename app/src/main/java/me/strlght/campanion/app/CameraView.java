@@ -26,14 +26,12 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 	private ShutterCallback mShutterCallback;
 
 
-	public CameraView(Context context)
-	{
+	public CameraView(Context context) {
 		super(context);
 		init();
 	}
 
-	public CameraView(Context context, AttributeSet attrs)
-	{
+	public CameraView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		init();
 	}
@@ -249,6 +247,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 
 	public static interface ShutterCallback {
 		void preShutter();
+
 		void postShutter();
 	}
 }

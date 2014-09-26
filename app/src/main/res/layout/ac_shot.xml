@@ -2,37 +2,38 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:keepScreenOn="true"
     tools:context=".ShotActivity">
 
     <me.strlght.campanion.app.CameraView
+        android:id="@+id/camera_preview"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/camera_preview" />
+        android:layout_height="match_parent" />
 
     <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/switch_button_text"
-        android:textSize="14sp"
         android:id="@+id/switch_button"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true" />
-
-    <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/shutter_button_text"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:text="@string/switch_button_text"
+        android:textSize="14sp" />
+
+    <Button
         android:id="@+id/shutter_button"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true" />
-
-    <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/stability_button_text"
-        android:textSize="14sp"
-        android:id="@+id/stability_button"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true" />
+        android:layout_centerHorizontal="true"
+        android:text="@string/shutter_button_text" />
+
+    <Button
+        android:id="@+id/stability_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:text="@string/stability_button_text"
+        android:textSize="14sp" />
 
 </RelativeLayout>
