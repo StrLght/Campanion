@@ -34,7 +34,6 @@ gradle-app.setting
 .gradletasknamecache
 .gradle/**
 build/**
-gradle/
 
 # Proguard
 proguard/**

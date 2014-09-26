@@ -3,12 +3,10 @@ package me.strlght.campanion.app;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
-import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.hardware.*;
 import android.os.Bundle;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.Button;
 
 /**
