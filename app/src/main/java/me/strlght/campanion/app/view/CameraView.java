@@ -1,4 +1,4 @@
-package me.strlght.campanion.app;
+package me.strlght.campanion.app.view;
 
 import android.content.Context;
 import android.hardware.Camera;
@@ -8,6 +8,7 @@ import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.WindowManager;
+import me.strlght.campanion.app.R;
 
 import java.io.IOException;
 import java.util.List;

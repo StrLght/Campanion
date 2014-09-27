@@ -1,4 +1,4 @@
-package me.strlght.campanion.app;
+package me.strlght.campanion.app.activity;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -8,6 +8,10 @@ import android.hardware.*;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import me.strlght.campanion.app.view.CameraView;
+import me.strlght.campanion.app.callback.DefaultPictureCallback;
+import me.strlght.campanion.app.R;
+import me.strlght.campanion.app.callback.StabilizedPictureCallback;
 
 /**
  * Created by starlight on 9/22/14.
@@ -26,6 +30,7 @@ public class ShotActivity extends Activity implements SensorEventListener {
 	private float[] mGeomagnetic;
 	private float mPitch;
 	private float mRoll;
+	private float mAzimuth;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -121,8 +126,12 @@ public class ShotActivity extends Activity implements SensorEventListener {
 			float[] I = new float[9];
 			if (SensorManager.getRotationMatrix(R, I, mGravity, mGeomagnetic)) {
 				float[] orientation = new float[3];
+				SensorManager.remapCoordinateSystem(R, SensorManager.AXIS_X, SensorManager.AXIS_Y, R);
 				SensorManager.getOrientation(R, orientation);
 
+				float azimuth = Double
+						.valueOf(Math.toDegrees(orientation[0]))
+						.floatValue();
 				float pitch = Double
 						.valueOf(Math.toDegrees(orientation[1]))
 						.floatValue();
@@ -132,6 +141,7 @@ public class ShotActivity extends Activity implements SensorEventListener {
 
 				mPitch = pitch;
 				mRoll = roll;
+				mAzimuth = azimuth;
 
 				// TODO: do something with orientation data.
 			}

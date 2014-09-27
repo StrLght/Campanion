@@ -1,4 +1,4 @@
-package me.strlght.campanion.app;
+package me.strlght.campanion.app.callback;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.os.AsyncTask;
+import me.strlght.campanion.app.util.Saver;
 
 /**
  * Created by starlight on 9/25/14.
@@ -53,7 +54,7 @@ public class StabilizedPictureCallback implements Camera.PictureCallback {
 			float k = (float) origwidth / origheight;
 
 			//TODO: fix orientation
-			float rotation = mPitch;
+			float rotation =  90.0f - mRoll;
 			int scaledheight = Double.valueOf((float) origheight / Math.sqrt(1 + Math.pow((float) origwidth / origheight, 2))).intValue();
 			int scaledwidth = Double.valueOf(scaledheight * k).intValue();
 

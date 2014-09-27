@@ -5,7 +5,7 @@
     android:keepScreenOn="true"
     tools:context=".ShotActivity">
 
-    <me.strlght.campanion.app.CameraView
+    <me.strlght.campanion.app.view.CameraView
         android:id="@+id/camera_preview"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

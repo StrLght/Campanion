@@ -1,4 +1,4 @@
-package me.strlght.campanion.app;
+package me.strlght.campanion.app.util;
 
 import android.content.ContentValues;
 import android.content.Context;
