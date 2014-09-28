@@ -113,6 +113,8 @@ public class ShotActivity extends Activity implements SensorEventListener {
 
 	@Override
 	public void onSensorChanged(SensorEvent sensorEvent) {
+		//TODO: add interpolation or something to smoother results
+		//TODO: gyroscope support
 		if (sensorEvent.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
 			mGravity = sensorEvent.values.clone();
 		}
@@ -126,24 +128,17 @@ public class ShotActivity extends Activity implements SensorEventListener {
 			float[] I = new float[9];
 			if (SensorManager.getRotationMatrix(R, I, mGravity, mGeomagnetic)) {
 				float[] orientation = new float[3];
-				SensorManager.remapCoordinateSystem(R, SensorManager.AXIS_X, SensorManager.AXIS_Y, R);
-				SensorManager.getOrientation(R, orientation);
+				float[] newR = new float[9];
+				SensorManager.remapCoordinateSystem(R, SensorManager.AXIS_X, SensorManager.AXIS_Y, newR);
+				SensorManager.getOrientation(newR, orientation);
 
-				float azimuth = Double
-						.valueOf(Math.toDegrees(orientation[0]))
-						.floatValue();
-				float pitch = Double
-						.valueOf(Math.toDegrees(orientation[1]))
-						.floatValue();
-				float roll = Double
-						.valueOf(Math.toDegrees(orientation[2]))
-						.floatValue();
+				float azimuth = (float) Math.toDegrees(orientation[0]);
+				float pitch = (float) Math.toDegrees(orientation[1]);
+				float roll = (float) Math.toDegrees(orientation[2]);
 
+				mAzimuth = azimuth;
 				mPitch = pitch;
 				mRoll = roll;
-				mAzimuth = azimuth;
-
-				// TODO: do something with orientation data.
 			}
 		}
 	}
@@ -157,10 +152,14 @@ public class ShotActivity extends Activity implements SensorEventListener {
 
 		@Override
 		public void onClick(View view) {
+			// TODO: this is really horrible.
+			int facing = mCameraView.getCameraFacing();
 			mStabilizedPictureCallback.setPitch(mPitch);
 			mStabilizedPictureCallback.setRoll(mRoll);
+			mStabilizedPictureCallback.setFacing(facing);
 			mDefaultPictureCallback.setPitch(mPitch);
 			mDefaultPictureCallback.setRoll(mRoll);
+			mDefaultPictureCallback.setFacing(facing);
 			mCameraView.takePicture();
 		}
 

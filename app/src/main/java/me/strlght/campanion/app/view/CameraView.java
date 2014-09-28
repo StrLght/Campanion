@@ -20,12 +20,12 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 
 	private Camera mCamera;
 	private int mCameraId = -1;
+	private int mCameraFacing;
 	private Camera.ShutterCallback mCameraShutterCallback;
 	private Camera.PictureCallback mCameraRawPictureCallback;
 	private Camera.PictureCallback mCameraPostPictureCallback;
 	private Camera.PictureCallback mCameraJpegPictureCallback;
 	private ShutterCallback mShutterCallback;
-
 
 	public CameraView(Context context) {
 		super(context);
@@ -64,6 +64,10 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 
 	public void setCameraJpegPictureCallback(Camera.PictureCallback cameraJpegPictureCallback) {
 		mCameraJpegPictureCallback = cameraJpegPictureCallback;
+	}
+
+	public int getCameraFacing() {
+		return mCameraFacing;
 	}
 
 	public void takePicture() {
@@ -217,6 +221,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 		}
 
 		int result;
+		mCameraFacing = info.facing;
 		if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
 			result = (info.orientation + degrees) % 360;
 			result = (360 - result) % 360;
@@ -245,6 +250,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 	public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
 		stopPreview();
 	}
+
 
 	public static interface ShutterCallback {
 		void preShutter();

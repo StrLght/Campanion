@@ -16,10 +16,11 @@ public class DefaultPictureCallback implements Camera.PictureCallback {
 	private Context mContext;
 	private float mPitch;
 	private float mRoll;
+	private int mFacing;
 
 	@Override
 	public void onPictureTaken(byte[] bytes, Camera camera) {
-		new SaveImageTask(mPitch, mRoll).execute(bytes);
+		new SaveImageTask(mPitch, mRoll, mFacing).execute(bytes);
 	}
 
 	public void setContext(Context context) {
@@ -34,16 +35,22 @@ public class DefaultPictureCallback implements Camera.PictureCallback {
 		mRoll = roll;
 	}
 
+	public void setFacing(int facing) {
+		mFacing = facing;
+	}
+
 	private class SaveImageTask extends AsyncTask<byte[], Void, Void> {
 
-		private float mPitch;
-		private float mRoll;
+		private final float mPitch;
+		private final float mRoll;
+		private final int mFacing;
 
-		SaveImageTask(float pitch, float roll) {
+		SaveImageTask(float pitch, float roll, int facing) {
 			super();
 
 			mPitch = pitch;
 			mRoll = roll;
+			mFacing = facing;
 		}
 
 		@Override
@@ -52,10 +59,21 @@ public class DefaultPictureCallback implements Camera.PictureCallback {
 			int origwidth = img.getWidth();
 			int origheight = img.getHeight();
 
-			//TODO: fix rotation
+			int rotation = 90;
+			if (mPitch > 45 && mPitch < 135) {
+				rotation += 180;
+			} else if (mRoll > 45) {
+				rotation += 90;
+			} else if (mRoll < -45) {
+				rotation += 270;
+			}
+
+			if (mFacing == Camera.CameraInfo.CAMERA_FACING_FRONT && (rotation == 270 || rotation == 90)) {
+				rotation += 180;
+			}
 
 			Matrix transformation = new Matrix();
-			// transformation.setRotate(rotation);
+			transformation.setRotate(rotation);
 			img = Bitmap.createBitmap(img, 0, 0, origwidth, origheight, transformation, false);
 			Saver.save(mContext, img);
 			return null;
