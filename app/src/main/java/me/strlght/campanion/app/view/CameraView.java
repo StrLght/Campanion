@@ -8,7 +8,6 @@ import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.WindowManager;
-import me.strlght.campanion.app.R;
 
 import java.io.IOException;
 import java.util.List;
@@ -178,8 +177,8 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 		try {
 			mCamera.stopPreview();
 		} catch (Exception e) {
-			Log.d(getContext().getString(R.string.app_name), "Failed to stop preview");
-		}
+            Log.d(TAG, "Failed to stop preview");
+        }
 	}
 
 	private void startPreview(SurfaceHolder holder) {
@@ -193,8 +192,8 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
             fixPreviewRotation();
             mCamera.startPreview();
         } catch (IOException e) {
-            Log.d(getContext().getString(R.string.app_name), "Failed to start preview");
-		}
+            Log.d(TAG, "Failed to start preview");
+        }
 	}
 
     private void fixPreviewSize() {
