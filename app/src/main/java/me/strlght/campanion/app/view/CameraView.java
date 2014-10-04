@@ -187,16 +187,16 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 
 		try {
 			mCamera.setPreviewDisplay(holder);
-			fixPreview();
-			mCamera.startPreview();
-		} catch (IOException e) {
-			Log.d(getContext().getString(R.string.app_name), "Failed to start preview");
+            fixPreviewRotation();
+            mCamera.startPreview();
+        } catch (IOException e) {
+            Log.d(getContext().getString(R.string.app_name), "Failed to start preview");
 		}
 	}
 
-	private void fixPreview() {
-		if (mCamera == null || mCameraId < 0)
-			return;
+    private void fixPreviewRotation() {
+        if (mCamera == null || mCameraId < 0)
+            return;
 
 		Camera.CameraInfo info = new Camera.CameraInfo();
 		Camera.getCameraInfo(mCameraId, info);
