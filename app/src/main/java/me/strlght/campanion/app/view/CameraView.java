@@ -188,21 +188,29 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 
 		try {
 			mCamera.setPreviewDisplay(holder);
-            fixPreviewSize();
-            fixPreviewRotation();
+			int width = getWidth();
+			int height = getHeight();
+			if (width != 0 && height != 0) {
+				fixPreviewSize(width, height);
+			}
+			fixPreviewRotation();
             mCamera.startPreview();
         } catch (IOException e) {
             Log.d(TAG, "Failed to start preview");
         }
 	}
 
-    private void fixPreviewSize() {
-        if (mCamera == null) {
+	private void fixPreviewSize(int width, int height) {
+		if (mCamera == null) {
             return;
         }
 
         final double ASPECT_TOLERANCE = 0.1f;
-        double targetRatio = (double) getHeight() / getWidth();
+		double targetRatio = (double) width / height;
+
+		if (Double.isNaN(targetRatio)) {
+			return;
+		}
 
         Camera.Size optimalSize = null;
         double minDiff = Double.MAX_VALUE;
@@ -285,13 +293,13 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 	@Override
 	public void surfaceChanged(SurfaceHolder surfaceHolder, int i, int i2, int i3) {
 		restartPreview(surfaceHolder);
+		fixPreviewSize(i2, i3);
 	}
 
 	@Override
 	public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
 		stopPreview();
 	}
-
 
 	public static interface ShutterCallback {
 		void preShutter();
