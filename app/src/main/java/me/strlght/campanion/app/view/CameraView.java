@@ -187,12 +187,52 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 
 		try {
 			mCamera.setPreviewDisplay(holder);
+            fixPreviewSize();
             fixPreviewRotation();
             mCamera.startPreview();
         } catch (IOException e) {
             Log.d(getContext().getString(R.string.app_name), "Failed to start preview");
 		}
 	}
+
+    private void fixPreviewSize() {
+        if (mCamera == null || mCameraId < 0) {
+            return;
+        }
+
+        final double ASPECT_TOLERANCE = 0.1f;
+        double targetRatio = (double) getHeight() / getWidth();
+
+        Camera.Size optimalSize = null;
+        double minDiff = Double.MAX_VALUE;
+        int targetHeight = getHeight();
+
+        for (Camera.Size size : mCamera.getParameters().getSupportedPreviewSizes()) {
+            double ratio = (double) size.width / size.height;
+            if (Math.abs(ratio - targetRatio) > ASPECT_TOLERANCE) {
+                continue;
+            }
+            if (Math.abs(size.height - targetHeight) < minDiff) {
+                optimalSize = size;
+                minDiff = Math.abs(size.height - targetHeight);
+            }
+        }
+
+        if (optimalSize == null) {
+            for (Camera.Size size : mCamera.getParameters().getSupportedPreviewSizes()) {
+                if (Math.abs(size.height - targetHeight) < minDiff) {
+                    optimalSize = size;
+                    minDiff = Math.abs(size.height - targetHeight);
+                }
+            }
+        }
+
+        if (optimalSize != null) {
+            Camera.Parameters parameters = mCamera.getParameters();
+            parameters.setPreviewSize(optimalSize.width, optimalSize.height);
+            mCamera.setParameters(parameters);
+        }
+    }
 
     private void fixPreviewRotation() {
         if (mCamera == null || mCameraId < 0)
