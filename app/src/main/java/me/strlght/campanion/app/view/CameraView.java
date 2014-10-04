@@ -197,7 +197,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 	}
 
     private void fixPreviewSize() {
-        if (mCamera == null || mCameraId < 0) {
+        if (mCamera == null) {
             return;
         }
 
