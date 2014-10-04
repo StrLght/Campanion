@@ -39,11 +39,6 @@ public class ShotActivity extends Activity implements SensorEventListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.ac_shot);
 
-		ActionBar actionBar = getActionBar();
-		if (actionBar != null) {
-			actionBar.hide();
-		}
-
 		mCameraView = (CameraView) findViewById(R.id.camera_preview);
 		final Button switch_button = (Button) findViewById(R.id.switch_button);
 		final Button shutter_button = (Button) findViewById(R.id.shutter_button);
@@ -92,6 +87,15 @@ public class ShotActivity extends Activity implements SensorEventListener {
 	@Override
 	protected void onResume() {
 		super.onResume();
+
+		View decorView = getWindow().getDecorView();
+		int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
+		decorView.setSystemUiVisibility(uiOptions);
+
+		ActionBar actionBar = getActionBar();
+		if (actionBar != null) {
+			actionBar.hide();
+		}
 
 		mCameraView.openCamera();
 

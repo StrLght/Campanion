@@ -4,10 +4,7 @@ import android.content.Context;
 import android.hardware.Camera;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.Surface;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
-import android.view.WindowManager;
+import android.view.*;
 
 import java.io.IOException;
 import java.util.List;
@@ -17,7 +14,7 @@ import java.util.List;
  */
 public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 
-    private static final String TAG = "CameraView";
+	private static final String TAG = "CameraView";
 
 	private Camera mCamera;
 	private int mCameraId = -1;
@@ -27,6 +24,8 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 	private Camera.PictureCallback mCameraPostPictureCallback;
 	private Camera.PictureCallback mCameraJpegPictureCallback;
 	private ShutterCallback mShutterCallback;
+	private int mWidth = -1;
+	private int mHeight = -1;
 
 	public CameraView(Context context) {
 		super(context);
@@ -41,6 +40,45 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 	public CameraView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 		init();
+	}
+
+	@Override
+	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+		final int width = resolveSize(getSuggestedMinimumWidth(), widthMeasureSpec);
+		final int height = resolveSize(getSuggestedMinimumHeight(), heightMeasureSpec);
+
+		if (mWidth < 0 && mHeight < 0) {
+			mWidth = width;
+			mHeight = height;
+		}
+		setMeasuredDimension(mWidth, mHeight);
+	}
+
+	@Override
+	protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+		if (changed) {
+			int previewWidth = 0;
+			int previewHeight = 0;
+
+			Display display = ((WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+
+			Camera.Size previewSize = getPreviewSize(mWidth, mHeight);
+
+			switch (display.getRotation()) {
+				case Surface.ROTATION_0:
+				case Surface.ROTATION_180:
+					previewWidth = previewSize.height;
+					previewHeight = previewSize.width;
+					break;
+				case Surface.ROTATION_90:
+				case Surface.ROTATION_270:
+					previewWidth = previewSize.width;
+					previewHeight = previewSize.height;
+					break;
+			}
+
+			layout(mWidth / 2 - previewWidth / 2, mHeight / 2 - previewHeight / 2, previewWidth, previewHeight);
+		}
 	}
 
 	private void init() {
@@ -177,8 +215,8 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 		try {
 			mCamera.stopPreview();
 		} catch (Exception e) {
-            Log.d(TAG, "Failed to stop preview");
-        }
+			Log.d(TAG, "Failed to stop preview");
+		}
 	}
 
 	private void startPreview(SurfaceHolder holder) {
@@ -188,64 +226,56 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 
 		try {
 			mCamera.setPreviewDisplay(holder);
-			int width = getWidth();
-			int height = getHeight();
-			if (width != 0 && height != 0) {
-				fixPreviewSize(width, height);
-			}
 			fixPreviewRotation();
-            mCamera.startPreview();
-        } catch (IOException e) {
-            Log.d(TAG, "Failed to start preview");
-        }
+			requestLayout();
+			mCamera.startPreview();
+		} catch (IOException e) {
+			Log.d(TAG, "Failed to start preview");
+		}
 	}
 
-	private void fixPreviewSize(int width, int height) {
+	private Camera.Size getPreviewSize(int width, int height) {
 		if (mCamera == null) {
-            return;
-        }
-
-        final double ASPECT_TOLERANCE = 0.1f;
-		double targetRatio = (double) width / height;
-
-		if (Double.isNaN(targetRatio)) {
-			return;
+			return null;
 		}
 
-        Camera.Size optimalSize = null;
-        double minDiff = Double.MAX_VALUE;
-        int targetHeight = getHeight();
+		final double ASPECT_TOLERANCE = 0.1f;
+		double targetRatio = (double) height / width;
 
-        for (Camera.Size size : mCamera.getParameters().getSupportedPreviewSizes()) {
-            double ratio = (double) size.width / size.height;
-            if (Math.abs(ratio - targetRatio) > ASPECT_TOLERANCE) {
-                continue;
-            }
-            if (Math.abs(size.height - targetHeight) < minDiff) {
-                optimalSize = size;
-                minDiff = Math.abs(size.height - targetHeight);
-            }
-        }
+		if (Double.isNaN(targetRatio)) {
+			return null;
+		}
 
-        if (optimalSize == null) {
-            for (Camera.Size size : mCamera.getParameters().getSupportedPreviewSizes()) {
-                if (Math.abs(size.height - targetHeight) < minDiff) {
-                    optimalSize = size;
-                    minDiff = Math.abs(size.height - targetHeight);
-                }
-            }
-        }
+		Camera.Size optimalSize = null;
+		double minDiff = Double.MAX_VALUE;
+		int targetHeight = getHeight();
 
-        if (optimalSize != null) {
-            Camera.Parameters parameters = mCamera.getParameters();
-            parameters.setPreviewSize(optimalSize.width, optimalSize.height);
-            mCamera.setParameters(parameters);
-        }
-    }
+		for (Camera.Size size : mCamera.getParameters().getSupportedPreviewSizes()) {
+			double ratio = (double) size.width / size.height;
+			if (Math.abs(ratio - targetRatio) > ASPECT_TOLERANCE) {
+				continue;
+			}
+			if (Math.abs(size.height - targetHeight) < minDiff) {
+				optimalSize = size;
+				minDiff = Math.abs(size.height - targetHeight);
+			}
+		}
 
-    private void fixPreviewRotation() {
-        if (mCamera == null || mCameraId < 0)
-            return;
+		if (optimalSize == null) {
+			for (Camera.Size size : mCamera.getParameters().getSupportedPreviewSizes()) {
+				if (Math.abs(size.height - targetHeight) < minDiff) {
+					optimalSize = size;
+					minDiff = Math.abs(size.height - targetHeight);
+				}
+			}
+		}
+
+		return optimalSize;
+	}
+
+	private void fixPreviewRotation() {
+		if (mCamera == null || mCameraId < 0)
+			return;
 
 		Camera.CameraInfo info = new Camera.CameraInfo();
 		Camera.getCameraInfo(mCameraId, info);
@@ -293,7 +323,6 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 	@Override
 	public void surfaceChanged(SurfaceHolder surfaceHolder, int i, int i2, int i3) {
 		restartPreview(surfaceHolder);
-		fixPreviewSize(i2, i3);
 	}
 
 	@Override
