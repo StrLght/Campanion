@@ -18,12 +18,16 @@ import me.strlght.campanion.app.view.CameraView;
  */
 public class ShotActivity extends Activity implements SensorEventListener {
 
-    private static final String TAG = "ShotActivity";
+	private static final String TAG = "ShotActivity";
 
 	private CameraView mCameraView;
 	private StabilizedPictureCallback mStabilizedPictureCallback;
 	private DefaultPictureCallback mDefaultPictureCallback;
 	private boolean isStabilized;
+
+	private Button switch_button;
+	private Button shutter_button;
+	private Button stability_button;
 
 	private SensorManager mSensorManager;
 	private Sensor mAccelerometer;
@@ -40,35 +44,15 @@ public class ShotActivity extends Activity implements SensorEventListener {
 		setContentView(R.layout.ac_shot);
 
 		mCameraView = (CameraView) findViewById(R.id.camera_preview);
-		final Button switch_button = (Button) findViewById(R.id.switch_button);
-		final Button shutter_button = (Button) findViewById(R.id.shutter_button);
-		final Button stability_button = (Button) findViewById(R.id.stability_button);
-
-		mCameraView.setShutterCallback(new CameraView.ShutterCallback() {
-
-			@Override
-			public void preShutter() {
-				setButtonsEnabled(false);
-			}
-
-			@Override
-			public void postShutter() {
-				setButtonsEnabled(true);
-			}
-
-			private void setButtonsEnabled(boolean enabled) {
-				switch_button.setEnabled(enabled);
-				shutter_button.setEnabled(enabled);
-				stability_button.setEnabled(enabled);
-			}
-
-		});
+		switch_button = (Button) findViewById(R.id.switch_button);
+		shutter_button = (Button) findViewById(R.id.shutter_button);
+		stability_button = (Button) findViewById(R.id.stability_button);
 
 		mStabilizedPictureCallback = new StabilizedPictureCallback();
 		mStabilizedPictureCallback.setContext(getBaseContext());
 		mDefaultPictureCallback = new DefaultPictureCallback();
 		mDefaultPictureCallback.setContext(getBaseContext());
-		mCameraView.setCameraJpegPictureCallback(mStabilizedPictureCallback);
+		mCameraView.setJpegPictureCallback(mStabilizedPictureCallback);
 		isStabilized = true;
 
 		shutter_button.setOnClickListener(new OnShutterListener());
@@ -156,6 +140,12 @@ public class ShotActivity extends Activity implements SensorEventListener {
 
 	private class OnShutterListener implements View.OnClickListener {
 
+		private void setButtonsEnabled(boolean enabled) {
+			switch_button.setEnabled(enabled);
+			shutter_button.setEnabled(enabled);
+			stability_button.setEnabled(enabled);
+		}
+
 		@Override
 		public void onClick(View view) {
 			// TODO: this is really horrible.
@@ -166,6 +156,17 @@ public class ShotActivity extends Activity implements SensorEventListener {
 			mDefaultPictureCallback.setPitch(mPitch);
 			mDefaultPictureCallback.setRoll(mRoll);
 			mDefaultPictureCallback.setFacing(facing);
+
+			setButtonsEnabled(false);
+			mCameraView.setShutterCallback(new Camera.ShutterCallback() {
+
+				@Override
+				public void onShutter() {
+					setButtonsEnabled(true);
+				}
+
+			});
+
 			mCameraView.takePicture();
 		}
 
@@ -185,7 +186,7 @@ public class ShotActivity extends Activity implements SensorEventListener {
 		@Override
 		public void onClick(View view) {
 			mCameraView.
-					setCameraJpegPictureCallback(isStabilized ? mDefaultPictureCallback : mStabilizedPictureCallback);
+					setJpegPictureCallback(isStabilized ? mDefaultPictureCallback : mStabilizedPictureCallback);
 			isStabilized = !isStabilized;
 		}
 
