@@ -13,6 +13,8 @@ import me.strlght.campanion.app.util.Saver;
  */
 public class StabilizedPictureCallback implements Camera.PictureCallback {
 
+    private static final String TAG = "StabilizedPictureCallback";
+
 	private Context mContext;
 	private float mPitch;
 	private float mRoll;

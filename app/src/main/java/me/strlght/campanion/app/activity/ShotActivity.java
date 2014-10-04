@@ -8,15 +8,17 @@ import android.hardware.*;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import me.strlght.campanion.app.view.CameraView;
-import me.strlght.campanion.app.callback.DefaultPictureCallback;
 import me.strlght.campanion.app.R;
+import me.strlght.campanion.app.callback.DefaultPictureCallback;
 import me.strlght.campanion.app.callback.StabilizedPictureCallback;
+import me.strlght.campanion.app.view.CameraView;
 
 /**
  * Created by starlight on 9/22/14.
  */
 public class ShotActivity extends Activity implements SensorEventListener {
+
+    private static final String TAG = "ShotActivity";
 
 	private CameraView mCameraView;
 	private StabilizedPictureCallback mStabilizedPictureCallback;

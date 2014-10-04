@@ -18,6 +18,8 @@ import java.util.List;
  */
 public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 
+    private static final String TAG = "CameraView";
+
 	private Camera mCamera;
 	private int mCameraId = -1;
 	private int mCameraFacing;

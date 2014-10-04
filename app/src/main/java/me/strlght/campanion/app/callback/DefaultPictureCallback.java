@@ -13,6 +13,8 @@ import me.strlght.campanion.app.util.Saver;
  */
 public class DefaultPictureCallback implements Camera.PictureCallback {
 
+    private static final String TAG = "DefaultPictureCallback";
+
 	private Context mContext;
 	private float mPitch;
 	private float mRoll;

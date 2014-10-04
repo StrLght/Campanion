@@ -18,6 +18,8 @@ import java.util.Date;
  */
 public class Saver {
 
+    private static final String TAG = "Saver";
+
 	public static void save(Context context, Bitmap img) {
 		if (context == null) {
 			return;
@@ -44,14 +46,14 @@ public class Saver {
 		try {
 			outputStream = new FileOutputStream(pic);
 		} catch (IOException e) {
-			Log.d("Saver", "failed to open " + path);
-			return;
+            Log.d(TAG, "failed to open " + path);
+            return;
 		}
 
 		try {
 			if (!img.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)) {
-				Log.d("Saver", "failed to write " + path);
-				return;
+                Log.d(TAG, "failed to write " + path);
+                return;
 			}
 			outputStream.close();
 			ContentValues values = new ContentValues();
@@ -59,8 +61,8 @@ public class Saver {
 			values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
 			context.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
 		} catch (IOException e) {
-			Log.d("Saver", "failed to open " + path);
-		}
+            Log.d(TAG, "failed to open " + path);
+        }
 	}
 
 }
