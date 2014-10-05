@@ -21,7 +21,9 @@ public class ImageLoader extends AsyncTask<String, Void, Bitmap> {
 
 	@Override
 	protected Bitmap doInBackground(String... strings) {
-		return BitmapFactory.decodeFile(strings[0]);
+		Bitmap bitmap = BitmapFactory.decodeFile(strings[0]);
+		int height = (int) (bitmap.getHeight() * 256.0f / bitmap.getWidth());
+		return Bitmap.createScaledBitmap(bitmap, 256, height, true);
 	}
 
 	@Override
