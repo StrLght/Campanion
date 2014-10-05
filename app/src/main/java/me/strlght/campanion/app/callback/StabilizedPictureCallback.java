@@ -36,14 +36,18 @@ public class StabilizedPictureCallback extends PictureCallback {
 		@Override
 		protected Void doInBackground(byte[]... bytes) {
 			Bitmap img = BitmapFactory.decodeByteArray(bytes[0], 0, bytes[0].length);
-			int origwidth = img.getWidth();
-			int origheight = img.getHeight();
-			float k = (float) origwidth / origheight;
+			int originalWidth = img.getWidth();
+			int originalHeight = img.getHeight();
+			float k = (float) originalWidth / originalHeight;
 
-			//TODO: fix orientation
-			float rotation = 90.0f - mRoll;
-			int scaledheight = (int) ((float) origheight / Math.sqrt(1 + Math.pow((float) origwidth / origheight, 2)));
-			int scaledwidth = (int) (scaledheight * k);
+			float rotation;
+			if (mFacing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+				rotation = 270.0f - mRoll;
+			} else {
+				rotation = 90.0f + mRoll;
+			}
+			int scaledHeight = (int) ((float) originalHeight / Math.sqrt(1 + Math.pow((float) originalWidth / originalHeight, 2)));
+			int scaledWidth = (int) (scaledHeight * k);
 
 			if (mFacing == Camera.CameraInfo.CAMERA_FACING_FRONT &&
 					((mPitch < -45 && mPitch > -135) || (mPitch > 45 && mPitch < 135))) {
@@ -52,10 +56,10 @@ public class StabilizedPictureCallback extends PictureCallback {
 
 			Matrix transformation = new Matrix();
 			transformation.setRotate(rotation);
-			img = Bitmap.createBitmap(img, 0, 0, origwidth, origheight, transformation, true);
-			int centerx = img.getWidth() / 2;
-			int centery = img.getHeight() / 2;
-			img = Bitmap.createBitmap(img, centerx - scaledwidth / 2, centery - scaledheight / 2, scaledwidth, scaledheight);
+			img = Bitmap.createBitmap(img, 0, 0, originalWidth, originalHeight, transformation, true);
+			int centerX = img.getWidth() / 2;
+			int centerY = img.getHeight() / 2;
+			img = Bitmap.createBitmap(img, centerX - scaledWidth / 2, centerY - scaledHeight / 2, scaledWidth, scaledHeight);
 
 			Saver.save(getContext(), img);
 

@@ -126,7 +126,7 @@ public class ShotActivity extends Activity implements SensorEventListener {
 			if (SensorManager.getRotationMatrix(R, I, mGravity, mGeomagnetic)) {
 				float[] orientation = new float[3];
 				float[] newR = new float[9];
-				SensorManager.remapCoordinateSystem(R, SensorManager.AXIS_X, SensorManager.AXIS_Y, newR);
+				SensorManager.remapCoordinateSystem(R, SensorManager.AXIS_X, SensorManager.AXIS_Z, newR);
 				SensorManager.getOrientation(newR, orientation);
 
 				float azimuth = (float) Math.toDegrees(orientation[0]);
