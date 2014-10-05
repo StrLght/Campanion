@@ -33,6 +33,10 @@ public class GalleryActivity extends Activity {
 		if (strings == null) {
 			files = null;
 		} else {
+			String directory = Saver.getSaveDirectory().getAbsolutePath();
+			for (int i = 0; i < strings.length; i++) {
+				strings[i] = directory + strings[i];
+			}
 			files = Arrays.asList(strings);
 		}
 		mGridView.setAdapter(new ImageArrayAdapter(getBaseContext(), files));
