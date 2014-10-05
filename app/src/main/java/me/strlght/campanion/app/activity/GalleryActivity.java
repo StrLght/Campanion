@@ -9,6 +9,7 @@ import me.strlght.campanion.app.R;
 import me.strlght.campanion.app.adapter.ImageArrayAdapter;
 import me.strlght.campanion.app.util.Saver;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
@@ -35,7 +36,7 @@ public class GalleryActivity extends Activity {
 		} else {
 			String directory = Saver.getSaveDirectory().getAbsolutePath();
 			for (int i = 0; i < strings.length; i++) {
-				strings[i] = directory + strings[i];
+				strings[i] = directory + File.pathSeparator + strings[i];
 			}
 			files = Arrays.asList(strings);
 		}
