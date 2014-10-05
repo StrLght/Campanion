@@ -1,14 +1,13 @@
 package me.strlght.campanion.app.adapter;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
-import me.strlght.campanion.app.util.ImageLoader;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -74,33 +73,20 @@ public class ImageArrayAdapter extends BaseAdapter {
 			return null;
 		}
 
-		final ImageView imageView;
-
+		ImageView imageView = (ImageView) view;
 		if (view == null) {
 			imageView = new ImageView(mContext);
-			imageView.setLayoutParams(new GridView.LayoutParams(mWidth, mHeight));
-			imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-			imageView.setPadding(mPaddingLeft, mPaddingTop, mPaddingRight, mPaddingBottom);
-		} else {
-			imageView = (ImageView) view;
+
 		}
 		imageView.setBackgroundColor(Color.parseColor("#ffffffff"));
+		imageView.setLayoutParams(new GridView.LayoutParams(mWidth, mHeight));
+		imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+		imageView.setPadding(mPaddingLeft, mPaddingTop, mPaddingRight, mPaddingBottom);
 
-		ImageLoader imageLoader;
-		if (imageView.getTag() != null) {
-			imageLoader = (ImageLoader) imageView.getTag();
-			imageLoader.cancel(true);
-		}
-		imageLoader = new ImageLoader(new ImageLoader.ImageLoaderCallback() {
-
-			@Override
-			public void onLoadFinished(Bitmap bitmap) {
-				imageView.setImageBitmap(bitmap);
-			}
-
-		});
-		imageLoader.execute(mImages.get(i));
-		imageView.setTag(imageLoader);
+		Picasso.with(mContext)
+				.load(mImages.get(i))
+				.centerCrop()
+				.into(imageView);
 
 		return imageView;
 	}
