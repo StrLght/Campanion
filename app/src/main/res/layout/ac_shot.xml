@@ -5,17 +5,25 @@
     android:keepScreenOn="true"
     tools:context=".ShotActivity">
 
-    <me.strlght.campanion.app.view.CameraView
-        android:id="@+id/camera_preview"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:background="@android:color/black">
+
+        <me.strlght.campanion.app.view.CameraView
+            android:id="@+id/camera_preview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center" />
+
+    </FrameLayout>
 
     <Button
         android:id="@+id/switch_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
         android:text="@string/switch_button_text"
         android:textSize="14sp" />
 
@@ -32,7 +40,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
         android:text="@string/stability_button_text"
         android:textSize="14sp" />
 
