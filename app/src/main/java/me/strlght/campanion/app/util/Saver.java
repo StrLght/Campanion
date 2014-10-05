@@ -20,6 +20,12 @@ public class Saver {
 
     private static final String TAG = "Saver";
 
+	public static File getSaveDirectory() {
+		File sdDir = Environment.getExternalStorageDirectory();
+		File dir = new File(sdDir.getAbsolutePath() + File.separator + "Campanion");
+		return dir;
+	}
+
 	public static void save(Context context, Bitmap img) {
 		if (context == null) {
 			return;
@@ -29,8 +35,7 @@ public class Saver {
 		String date = dateFormat.format(new Date());
 		String name = "img_" + date + ".jpg";
 
-		File sdDir = Environment.getExternalStorageDirectory();
-		File dir = new File(sdDir.getAbsolutePath() + File.separator + "Campanion");
+		File dir = getSaveDirectory();
 		dir.mkdirs();
 		String path = dir + File.separator + name;
 		File pic = new File(path);

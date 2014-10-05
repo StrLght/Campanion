@@ -4,29 +4,55 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.GridView;
 import me.strlght.campanion.app.R;
+import me.strlght.campanion.app.adapter.ImageArrayAdapter;
+import me.strlght.campanion.app.util.Saver;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class GalleryActivity extends Activity {
+
+	private GridView mGridView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.ac_gallery);
+
+	    mGridView = (GridView) findViewById(R.id.pictures_view);
     }
 
+	@Override
+	protected void onResume() {
+		super.onResume();
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
+		List<String> files;
+		String[] strings = Saver.getSaveDirectory().list();
+		if (strings == null) {
+			files = null;
+		} else {
+			files = Arrays.asList(strings);
+		}
+		mGridView.setAdapter(new ImageArrayAdapter(getBaseContext(), files));
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+
+		mGridView.setAdapter(null);
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.gallery, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.action_settings) {
             return true;
