@@ -10,8 +10,12 @@ import android.view.View;
 import android.widget.Button;
 import me.strlght.campanion.app.R;
 import me.strlght.campanion.app.callback.DefaultPictureCallback;
+import me.strlght.campanion.app.callback.PictureCallback;
 import me.strlght.campanion.app.callback.StabilizedPictureCallback;
 import me.strlght.campanion.app.view.CameraView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by starlight on 9/22/14.
@@ -21,9 +25,8 @@ public class ShotActivity extends Activity implements SensorEventListener {
 	private static final String TAG = "ShotActivity";
 
 	private CameraView mCameraView;
-	private StabilizedPictureCallback mStabilizedPictureCallback;
-	private DefaultPictureCallback mDefaultPictureCallback;
-	private boolean isStabilized;
+	private List<PictureCallback> mPictureCallbacks;
+	private int mActiveCallbackNumber;
 
 	private Button switch_button;
 	private Button shutter_button;
@@ -34,9 +37,9 @@ public class ShotActivity extends Activity implements SensorEventListener {
 	private Sensor mMagnetometer;
 	private float[] mGravity;
 	private float[] mGeomagnetic;
+	private float mAzimuth;
 	private float mPitch;
 	private float mRoll;
-	private float mAzimuth;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -48,12 +51,16 @@ public class ShotActivity extends Activity implements SensorEventListener {
 		shutter_button = (Button) findViewById(R.id.shutter_button);
 		stability_button = (Button) findViewById(R.id.stability_button);
 
-		mStabilizedPictureCallback = new StabilizedPictureCallback();
-		mStabilizedPictureCallback.setContext(getBaseContext());
-		mDefaultPictureCallback = new DefaultPictureCallback();
-		mDefaultPictureCallback.setContext(getBaseContext());
-		mCameraView.setJpegPictureCallback(mStabilizedPictureCallback);
-		isStabilized = true;
+		mPictureCallbacks = new ArrayList<PictureCallback>();
+		mPictureCallbacks.add(new StabilizedPictureCallback());
+		mPictureCallbacks.add(new DefaultPictureCallback());
+		mActiveCallbackNumber = 0;
+
+		for (PictureCallback callback : mPictureCallbacks) {
+			callback.setContext(getBaseContext());
+		}
+
+		mCameraView.setJpegPictureCallback(mPictureCallbacks.get(0));
 
 		shutter_button.setOnClickListener(new OnShutterListener());
 		stability_button.setOnClickListener(new OnStabilizeListener());
@@ -148,14 +155,12 @@ public class ShotActivity extends Activity implements SensorEventListener {
 
 		@Override
 		public void onClick(View view) {
-			// TODO: this is really horrible.
 			int facing = mCameraView.getCameraFacing();
-			mStabilizedPictureCallback.setPitch(mPitch);
-			mStabilizedPictureCallback.setRoll(mRoll);
-			mStabilizedPictureCallback.setFacing(facing);
-			mDefaultPictureCallback.setPitch(mPitch);
-			mDefaultPictureCallback.setRoll(mRoll);
-			mDefaultPictureCallback.setFacing(facing);
+			for (PictureCallback callback : mPictureCallbacks) {
+				callback.setPitch(mPitch);
+				callback.setRoll(mRoll);
+				callback.setFacing(facing);
+			}
 
 			setButtonsEnabled(false);
 			mCameraView.setShutterCallback(new Camera.ShutterCallback() {
@@ -185,9 +190,8 @@ public class ShotActivity extends Activity implements SensorEventListener {
 
 		@Override
 		public void onClick(View view) {
-			mCameraView.
-					setJpegPictureCallback(isStabilized ? mDefaultPictureCallback : mStabilizedPictureCallback);
-			isStabilized = !isStabilized;
+			mActiveCallbackNumber = (mActiveCallbackNumber + 1) % mPictureCallbacks.size();
+			mCameraView.setJpegPictureCallback(mPictureCallbacks.get(mActiveCallbackNumber));
 		}
 
 	}

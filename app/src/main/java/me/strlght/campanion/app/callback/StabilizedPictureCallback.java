@@ -1,6 +1,5 @@
 package me.strlght.campanion.app.callback;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -11,34 +10,13 @@ import me.strlght.campanion.app.util.Saver;
 /**
  * Created by starlight on 9/25/14.
  */
-public class StabilizedPictureCallback implements Camera.PictureCallback {
+public class StabilizedPictureCallback extends PictureCallback {
 
     private static final String TAG = "StabilizedPictureCallback";
 
-	private Context mContext;
-	private float mPitch;
-	private float mRoll;
-	private int mFacing;
-
 	@Override
 	public void onPictureTaken(byte[] bytes, Camera camera) {
-		new SaveImageTask(mPitch, mRoll, mFacing).execute(bytes);
-	}
-
-	public void setContext(Context context) {
-		mContext = context;
-	}
-
-	public void setPitch(float pitch) {
-		mPitch = pitch;
-	}
-
-	public void setRoll(float roll) {
-		mRoll = roll;
-	}
-
-	public void setFacing(int facing) {
-		mFacing = facing;
+		new SaveImageTask(getPitch(), getRoll(), getFacing()).execute(bytes);
 	}
 
 	private class SaveImageTask extends AsyncTask<byte[], Void, Void> {
@@ -79,7 +57,7 @@ public class StabilizedPictureCallback implements Camera.PictureCallback {
 			int centery = img.getHeight() / 2;
 			img = Bitmap.createBitmap(img, centerx - scaledwidth / 2, centery - scaledheight / 2, scaledwidth, scaledheight);
 
-			Saver.save(mContext, img);
+			Saver.save(getContext(), img);
 
 			return null;
 		}
