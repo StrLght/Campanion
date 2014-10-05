@@ -1,14 +1,16 @@
 package me.strlght.campanion.app.adapter;
 
 import android.content.Context;
-import android.graphics.Color;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.GridView;
 import android.widget.ImageView;
 import com.squareup.picasso.Picasso;
+import me.strlght.campanion.app.R;
 
+import java.io.File;
 import java.util.List;
 
 /**
@@ -16,28 +18,14 @@ import java.util.List;
  */
 public class ImageArrayAdapter extends BaseAdapter {
 
+	public static final String TAG = "ImageArrayAdapter";
+
 	private Context mContext;
 	private List<String> mImages;
-	private int mWidth;
-	private int mHeight;
-	private int mPaddingLeft;
-	private int mPaddingRight;
-	private int mPaddingTop;
-	private int mPaddingBottom;
 
 	public ImageArrayAdapter(Context context, List<String> images) {
-		this(context, images, 100, 100, 10, 10, 10, 10);
-	}
-
-	public ImageArrayAdapter(Context context, List<String> images, int width, int height, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom) {
 		mContext = context;
 		mImages = images;
-		mWidth = width;
-		mHeight = height;
-		mPaddingLeft = paddingLeft;
-		mPaddingRight = paddingRight;
-		mPaddingTop = paddingTop;
-		mPaddingBottom = paddingBottom;
 	}
 
 	@Override
@@ -73,22 +61,23 @@ public class ImageArrayAdapter extends BaseAdapter {
 			return null;
 		}
 
-		ImageView imageView = (ImageView) view;
-		if (view == null) {
-			imageView = new ImageView(mContext);
-
+		View v = view;
+		if (v == null) {
+			LayoutInflater layoutInflater = LayoutInflater.from(mContext);
+			v = layoutInflater.inflate(R.layout.li_gallery, viewGroup, false);
+			// v.setLayoutParams(new GridView.LayoutParams(256, 256));
 		}
-		imageView.setBackgroundColor(Color.parseColor("#ffffffff"));
-		imageView.setLayoutParams(new GridView.LayoutParams(mWidth, mHeight));
-		imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-		imageView.setPadding(mPaddingLeft, mPaddingTop, mPaddingRight, mPaddingBottom);
+		ImageView imageView = (ImageView) v.findViewById(R.id.image_view);
+
+		Log.d(TAG, mImages.get(i));
 
 		Picasso.with(mContext)
-				.load(mImages.get(i))
-				.centerCrop()
+				.load(new File(mImages.get(i)))
+				.resize(256, 256)
+				.centerInside()
 				.into(imageView);
 
-		return imageView;
+		return v;
 	}
 
 }

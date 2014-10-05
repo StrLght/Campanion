@@ -13,6 +13,9 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Created by starlight on 10/5/14.
+ */
 public class GalleryActivity extends Activity {
 
 	private GridView mGridView;
