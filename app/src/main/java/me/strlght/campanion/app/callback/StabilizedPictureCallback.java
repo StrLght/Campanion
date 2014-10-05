@@ -46,7 +46,7 @@ public class StabilizedPictureCallback extends PictureCallback {
 			} else {
 				rotation = 90.0f + mRoll;
 			}
-			int scaledHeight = (int) ((float) originalHeight / Math.sqrt(1 + Math.pow((float) originalWidth / originalHeight, 2)));
+			int scaledHeight = (int) ((float) originalHeight / Math.sqrt(1 + Math.pow(k, 2)));
 			int scaledWidth = (int) (scaledHeight * k);
 
 			if (mFacing == Camera.CameraInfo.CAMERA_FACING_FRONT &&

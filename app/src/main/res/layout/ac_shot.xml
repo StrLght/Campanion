@@ -2,21 +2,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@android:color/black"
     android:keepScreenOn="true"
     tools:context=".ShotActivity">
 
-    <FrameLayout
+    <me.strlght.campanion.app.view.CameraView
+        android:id="@+id/camera_preview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@android:color/black">
-
-        <me.strlght.campanion.app.view.CameraView
-            android:id="@+id/camera_preview"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center" />
-
-    </FrameLayout>
+        android:layout_gravity="center" />
 
     <Button
         android:id="@+id/switch_button"

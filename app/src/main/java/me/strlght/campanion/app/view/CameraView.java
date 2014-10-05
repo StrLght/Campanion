@@ -19,6 +19,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 	private Camera mCamera;
 	private int mCameraId = -1;
 	private int mCameraFacing;
+	private Camera.Size mPreviewSize;
 	private Camera.ShutterCallback mShutterCallback;
 	private Camera.PictureCallback mRawPictureCallback;
 	private Camera.PictureCallback mPostPictureCallback;
@@ -61,18 +62,22 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 
 			Display display = ((WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
 
-			Camera.Size previewSize = getPreviewSize(mWidth, mHeight);
+			mPreviewSize = getOptimalPreviewSize(mWidth, mHeight);
+
+			if (mPreviewSize == null) {
+				return;
+			}
 
 			switch (display.getRotation()) {
 				case Surface.ROTATION_0:
 				case Surface.ROTATION_180:
-					previewWidth = previewSize.height;
-					previewHeight = previewSize.width;
+					previewWidth = mPreviewSize.height;
+					previewHeight = mPreviewSize.width;
 					break;
 				case Surface.ROTATION_90:
 				case Surface.ROTATION_270:
-					previewWidth = previewSize.width;
-					previewHeight = previewSize.height;
+					previewWidth = mPreviewSize.width;
+					previewHeight = mPreviewSize.height;
 					break;
 			}
 
@@ -102,6 +107,10 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 
 	public int getCameraFacing() {
 		return mCameraFacing;
+	}
+
+	public Camera.Size getPreviewSize() {
+		return mPreviewSize;
 	}
 
 	public void takePicture() {
@@ -214,7 +223,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 		}
 	}
 
-	private Camera.Size getPreviewSize(int width, int height) {
+	private Camera.Size getOptimalPreviewSize(int width, int height) {
 		if (mCamera == null) {
 			return null;
 		}

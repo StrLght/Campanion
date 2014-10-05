@@ -1,0 +1,17 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="me.strlght.campanion.app.activity.GalleryActivity">
+
+    <GridView
+        android:id="@+id/pictures_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:columnWidth="100dp"
+        android:horizontalSpacing="10dp"
+        android:numColumns="auto_fit"
+        android:stretchMode="columnWidth"
+        android:verticalSpacing="10dp" />
+
+</RelativeLayout>

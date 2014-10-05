@@ -28,9 +28,9 @@ public class ShotActivity extends Activity implements SensorEventListener {
 	private List<PictureCallback> mPictureCallbacks;
 	private int mActiveCallbackNumber;
 
-	private Button switch_button;
-	private Button shutter_button;
-	private Button stability_button;
+	private Button mSwitchButton;
+	private Button mShutterButton;
+	private Button mStabilityButton;
 
 	private SensorManager mSensorManager;
 	private Sensor mAccelerometer;
@@ -47,9 +47,9 @@ public class ShotActivity extends Activity implements SensorEventListener {
 		setContentView(R.layout.ac_shot);
 
 		mCameraView = (CameraView) findViewById(R.id.camera_preview);
-		switch_button = (Button) findViewById(R.id.switch_button);
-		shutter_button = (Button) findViewById(R.id.shutter_button);
-		stability_button = (Button) findViewById(R.id.stability_button);
+		mSwitchButton = (Button) findViewById(R.id.switch_button);
+		mShutterButton = (Button) findViewById(R.id.shutter_button);
+		mStabilityButton = (Button) findViewById(R.id.stability_button);
 
 		mPictureCallbacks = new ArrayList<PictureCallback>();
 		mPictureCallbacks.add(new StabilizedPictureCallback());
@@ -62,12 +62,12 @@ public class ShotActivity extends Activity implements SensorEventListener {
 
 		mCameraView.setJpegPictureCallback(mPictureCallbacks.get(0));
 
-		shutter_button.setOnClickListener(new OnShutterListener());
-		stability_button.setOnClickListener(new OnStabilizeListener());
-		switch_button.setOnClickListener(new OnSwitchListener());
+		mShutterButton.setOnClickListener(new OnShutterListener());
+		mStabilityButton.setOnClickListener(new OnStabilizeListener());
+		mSwitchButton.setOnClickListener(new OnSwitchListener());
 		if (Camera.getNumberOfCameras() <= 1) {
-			switch_button.setEnabled(false);
-			switch_button.setVisibility(View.INVISIBLE);
+			mSwitchButton.setEnabled(false);
+			mSwitchButton.setVisibility(View.INVISIBLE);
 		}
 
 		mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
@@ -90,8 +90,8 @@ public class ShotActivity extends Activity implements SensorEventListener {
 
 		mCameraView.openCamera();
 
-		mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_GAME);
-		mSensorManager.registerListener(this, mMagnetometer, SensorManager.SENSOR_DELAY_GAME);
+		mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+		mSensorManager.registerListener(this, mMagnetometer, SensorManager.SENSOR_DELAY_NORMAL);
 	}
 
 	@Override
@@ -147,9 +147,9 @@ public class ShotActivity extends Activity implements SensorEventListener {
 	private class OnShutterListener implements View.OnClickListener {
 
 		private void setButtonsEnabled(boolean enabled) {
-			switch_button.setEnabled(enabled);
-			shutter_button.setEnabled(enabled);
-			stability_button.setEnabled(enabled);
+			mSwitchButton.setEnabled(enabled);
+			mShutterButton.setEnabled(enabled);
+			mStabilityButton.setEnabled(enabled);
 		}
 
 		@Override
