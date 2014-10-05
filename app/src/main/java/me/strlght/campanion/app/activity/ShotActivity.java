@@ -110,8 +110,7 @@ public class ShotActivity extends Activity implements SensorEventListener {
 
 	@Override
 	public void onSensorChanged(SensorEvent sensorEvent) {
-		//TODO: add interpolation or something to smoother results
-		//TODO: gyroscope support
+		//TODO: sensor fusion
 		if (sensorEvent.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
 			mGravity = sensorEvent.values.clone();
 		}
