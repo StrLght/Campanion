@@ -28,7 +28,7 @@ public class GalleryActivity extends Activity {
 	private GridView mGridView;
 	private LinearLayout mActionLayout;
 	private LinearLayout mSwitchLayout;
-	private String mChoosenImage;
+	private String mChosenImage;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -101,7 +101,7 @@ public class GalleryActivity extends Activity {
 			//TODO: fix selection (probably just add the selector to the view)
 			mActionLayout.setVisibility(View.VISIBLE);
 			mSwitchLayout.setVisibility(View.GONE);
-			mChoosenImage = (String) adapterView.getAdapter().getItem(i);
+			mChosenImage = (String) adapterView.getAdapter().getItem(i);
 		}
 
 	}
@@ -131,7 +131,7 @@ public class GalleryActivity extends Activity {
 		public void onClick(View view) {
 			Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
 			sharingIntent.setType("image/jpeg");
-			sharingIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + mChoosenImage));
+			sharingIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + mChosenImage));
 			startActivity(Intent.createChooser(sharingIntent, "Share Image"));
 		}
 
@@ -143,7 +143,7 @@ public class GalleryActivity extends Activity {
 		public void onClick(View view) {
 			mActionLayout.setVisibility(View.GONE);
 			mSwitchLayout.setVisibility(View.VISIBLE);
-			mChoosenImage = null;
+			mChosenImage = null;
 		}
 
 	}
