@@ -12,7 +12,7 @@ import me.strlght.campanion.app.util.Saver;
  */
 public class StabilizedPictureCallback extends PictureCallback {
 
-    private static final String TAG = "StabilizedPictureCallback";
+	private static final String TAG = "StabilizedPictureCallback";
 
 	@Override
 	public void onPictureTaken(byte[] bytes, Camera camera) {

@@ -18,11 +18,12 @@ import java.util.Date;
  */
 public class Saver {
 
-    private static final String TAG = "Saver";
+	private static final String TAG = "Saver";
 
 	public static File getSaveDirectory() {
 		File sdDir = Environment.getExternalStorageDirectory();
 		File dir = new File(sdDir.getAbsolutePath() + File.separator + "Campanion");
+		dir.mkdirs();
 		return dir;
 	}
 
@@ -36,7 +37,6 @@ public class Saver {
 		String name = "img_" + date + ".jpg";
 
 		File dir = getSaveDirectory();
-		dir.mkdirs();
 		String path = dir + File.separator + name;
 		File pic = new File(path);
 		int i = 1;
@@ -51,14 +51,14 @@ public class Saver {
 		try {
 			outputStream = new FileOutputStream(pic);
 		} catch (IOException e) {
-            Log.d(TAG, "failed to open " + path);
-            return;
+			Log.d(TAG, "failed to open " + path);
+			return;
 		}
 
 		try {
 			if (!img.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)) {
-                Log.d(TAG, "failed to write " + path);
-                return;
+				Log.d(TAG, "failed to write " + path);
+				return;
 			}
 			outputStream.close();
 			ContentValues values = new ContentValues();
@@ -66,8 +66,8 @@ public class Saver {
 			values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
 			context.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
 		} catch (IOException e) {
-            Log.d(TAG, "failed to open " + path);
-        }
+			Log.d(TAG, "failed to open " + path);
+		}
 	}
 
 }

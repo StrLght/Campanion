@@ -8,10 +8,19 @@
         android:id="@+id/pictures_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_above="@+id/camera_button"
         android:columnWidth="100dp"
         android:horizontalSpacing="10dp"
         android:numColumns="auto_fit"
         android:stretchMode="columnWidth"
         android:verticalSpacing="10dp" />
+
+    <Button
+        android:id="@+id/camera_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:text="Camera" />
 
 </RelativeLayout>
