@@ -16,7 +16,7 @@ import java.util.Date;
 /**
  * Created by starlight on 9/26/14.
  */
-public class Saver {
+public class FileUtils {
 
 	private static final String TAG = "Saver";
 

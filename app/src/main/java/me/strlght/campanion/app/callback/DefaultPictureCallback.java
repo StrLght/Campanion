@@ -5,14 +5,14 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.os.AsyncTask;
-import me.strlght.campanion.app.util.Saver;
+import me.strlght.campanion.app.util.FileUtils;
 
 /**
  * Created by starlight on 9/26/14.
  */
 public class DefaultPictureCallback extends PictureCallback {
 
-    private static final String TAG = "DefaultPictureCallback";
+	private static final String TAG = "DefaultPictureCallback";
 
 	@Override
 	public void onPictureTaken(byte[] bytes, Camera camera) {
@@ -55,7 +55,7 @@ public class DefaultPictureCallback extends PictureCallback {
 			Matrix transformation = new Matrix();
 			transformation.setRotate(rotation);
 			img = Bitmap.createBitmap(img, 0, 0, origwidth, origheight, transformation, false);
-			Saver.save(getContext(), img);
+			FileUtils.save(getContext(), img);
 			return null;
 		}
 

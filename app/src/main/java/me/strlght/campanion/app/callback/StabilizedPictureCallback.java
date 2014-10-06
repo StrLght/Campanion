@@ -5,7 +5,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.os.AsyncTask;
-import me.strlght.campanion.app.util.Saver;
+import me.strlght.campanion.app.util.FileUtils;
 
 /**
  * Created by starlight on 9/25/14.
@@ -61,7 +61,7 @@ public class StabilizedPictureCallback extends PictureCallback {
 			int centerY = img.getHeight() / 2;
 			img = Bitmap.createBitmap(img, centerX - scaledWidth / 2, centerY - scaledHeight / 2, scaledWidth, scaledHeight);
 
-			Saver.save(getContext(), img);
+			FileUtils.save(getContext(), img);
 
 			return null;
 		}
