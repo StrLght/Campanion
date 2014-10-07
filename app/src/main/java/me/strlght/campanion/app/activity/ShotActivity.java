@@ -80,7 +80,7 @@ public class ShotActivity extends Activity implements SensorEventListener {
 		super.onResume();
 
 		View decorView = getWindow().getDecorView();
-		int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
+		int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
 		decorView.setSystemUiVisibility(uiOptions);
 
 		ActionBar actionBar = getActionBar();

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <item name="yellow" type="color">#FFFFFF00</item>
+    <item name="opaque" type="color">#00000000</item>
+
+</resources>
