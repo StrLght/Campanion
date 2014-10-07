@@ -59,7 +59,7 @@ public class GalleryActivity extends Activity {
 		init();
 	}
 
-	private void init() {
+	private List<String> getFiles() {
 		List<String> files;
 		String[] strings = FileUtils.getSaveDirectory().list();
 		if (strings == null) {
@@ -72,7 +72,12 @@ public class GalleryActivity extends Activity {
 			files = Arrays.asList(strings);
 			Collections.reverse(files);
 		}
-		mGridView.setAdapter(new ImageArrayAdapter(getBaseContext(), files));
+
+		return files;
+	}
+
+	private void init() {
+		mGridView.setAdapter(new ImageArrayAdapter(getBaseContext(), getFiles()));
 	}
 
 	@Override
@@ -84,6 +89,11 @@ public class GalleryActivity extends Activity {
 
 	private void free() {
 		mGridView.setAdapter(null);
+	}
+
+	private void updateGridView() {
+		ImageArrayAdapter adapter = (ImageArrayAdapter) mGridView.getAdapter();
+		adapter.setImages(getFiles());
 	}
 
 	private void closeActionLayout() {
@@ -167,9 +177,7 @@ public class GalleryActivity extends Activity {
 			//TODO: fix delete
 			// FileUtils.delete(mChosenImage);
 
-			free();
-			init();
-			mGridView.setSelection(-1);
+			updateGridView();
 			closeActionLayout();
 		}
 

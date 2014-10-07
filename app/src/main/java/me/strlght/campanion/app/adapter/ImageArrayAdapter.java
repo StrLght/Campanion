@@ -47,6 +47,12 @@ public class ImageArrayAdapter extends BaseAdapter {
 		return false;
 	}
 
+	public void setImages(List<String> images) {
+		mImages = images;
+		clearSelection();
+		notifyDataSetChanged();
+	}
+
 	public void setSelected(int i, boolean selected) {
 		mSelected.set(i, selected);
 	}
