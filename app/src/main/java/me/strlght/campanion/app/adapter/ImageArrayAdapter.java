@@ -61,6 +61,16 @@ public class ImageArrayAdapter extends BaseAdapter {
 		return mSelected.get(i);
 	}
 
+	public List<String> getSelected() {
+		List<String> images = new ArrayList<String>();
+		for (int i = 0; i < mImages.size(); i++) {
+			if (mSelected.get(i)) {
+				images.add(mImages.get(i));
+			}
+		}
+		return images;
+	}
+
 	@Override
 	public int getCount() {
 		if (mImages != null) {

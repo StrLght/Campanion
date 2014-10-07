@@ -2,6 +2,7 @@ package me.strlght.campanion.app.activity;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -15,6 +16,7 @@ import me.strlght.campanion.app.adapter.ImageArrayAdapter;
 import me.strlght.campanion.app.util.FileUtils;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -161,11 +163,26 @@ public class GalleryActivity extends Activity {
 
 		@Override
 		public void onClick(View view) {
-			Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
-			sharingIntent.setType("image/jpeg");
-			//TODO: fix sharing
-			// sharingIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + mChosenImage));
-			startActivity(Intent.createChooser(sharingIntent, "Share Image"));
+			Intent sharingIntent;
+			String message;
+			ImageArrayAdapter adapter = (ImageArrayAdapter) mGridView.getAdapter();
+			List<String> files = adapter.getSelected();
+			if (files.size() == 1) {
+				sharingIntent = new Intent(Intent.ACTION_SEND);
+				sharingIntent.setType("image/jpeg");
+				sharingIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + files.get(0)));
+				message = "Share image";
+			} else {
+				sharingIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
+				sharingIntent.setType("image/jpeg");
+				ArrayList<Uri> uris = new ArrayList<Uri>();
+				for (String file : files) {
+					uris.add(Uri.parse("file://" + file));
+				}
+				sharingIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
+				message = "Share images";
+			}
+			startActivity(Intent.createChooser(sharingIntent, message));
 		}
 
 	}
@@ -174,8 +191,10 @@ public class GalleryActivity extends Activity {
 
 		@Override
 		public void onClick(View view) {
-			//TODO: fix delete
-			// FileUtils.delete(mChosenImage);
+			ImageArrayAdapter adapter = (ImageArrayAdapter) mGridView.getAdapter();
+			for (String image : adapter.getSelected()) {
+				FileUtils.delete(image);
+			}
 
 			updateGridView();
 			closeActionLayout();
