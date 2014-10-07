@@ -8,7 +8,7 @@
         android:id="@+id/pictures_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:choiceMode="singleChoice"
+        android:choiceMode="multipleChoice"
         android:columnWidth="100dp"
         android:horizontalSpacing="10dp"
         android:numColumns="auto_fit"
@@ -57,6 +57,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Share" />
+
+            <Button
+                android:id="@+id/delete_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Delete" />
 
             <Button
                 android:id="@+id/close_button"

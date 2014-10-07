@@ -27,6 +27,11 @@ public class FileUtils {
 		return dir;
 	}
 
+	public static boolean delete(String path) {
+		File file = new File(path);
+		return file.delete();
+	}
+
 	public static void save(Context context, Bitmap img) {
 		if (context == null) {
 			return;

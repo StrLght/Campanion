@@ -2,7 +2,6 @@ package me.strlght.campanion.app.activity;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -28,7 +27,6 @@ public class GalleryActivity extends Activity {
 	private GridView mGridView;
 	private LinearLayout mActionLayout;
 	private LinearLayout mSwitchLayout;
-	private String mChosenImage;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +41,8 @@ public class GalleryActivity extends Activity {
 		editButton.setOnClickListener(new OnEditButtonClickListener());
 		Button shareButton = (Button) findViewById(R.id.share_button);
 		shareButton.setOnClickListener(new OnShareButtonClickListener());
+		Button deleteButton = (Button) findViewById(R.id.delete_button);
+		deleteButton.setOnClickListener(new OnDeleteButtonClickListener());
 		Button closeButton = (Button) findViewById(R.id.close_button);
 		closeButton.setOnClickListener(new OnCloseButtonClickListener());
 
@@ -56,6 +56,10 @@ public class GalleryActivity extends Activity {
 	protected void onResume() {
 		super.onResume();
 
+		init();
+	}
+
+	private void init() {
 		List<String> files;
 		String[] strings = FileUtils.getSaveDirectory().list();
 		if (strings == null) {
@@ -75,7 +79,19 @@ public class GalleryActivity extends Activity {
 	protected void onPause() {
 		super.onPause();
 
+		free();
+	}
+
+	private void free() {
 		mGridView.setAdapter(null);
+	}
+
+	private void closeActionLayout() {
+		mActionLayout.setVisibility(View.GONE);
+		mSwitchLayout.setVisibility(View.VISIBLE);
+		ImageArrayAdapter adapter = (ImageArrayAdapter) mGridView.getAdapter();
+		adapter.clearSelection();
+		adapter.notifyDataSetChanged();
 	}
 
 	@Override
@@ -98,10 +114,16 @@ public class GalleryActivity extends Activity {
 
 		@Override
 		public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-			//TODO: fix selection (probably just add the selector to the view)
-			mActionLayout.setVisibility(View.VISIBLE);
-			mSwitchLayout.setVisibility(View.GONE);
-			mChosenImage = (String) adapterView.getAdapter().getItem(i);
+			ImageArrayAdapter adapter = (ImageArrayAdapter) mGridView.getAdapter();
+			adapter.setSelected(i, !adapter.isSelected(i));
+			//TODO: open preview window on double tap
+			adapter.notifyDataSetChanged();
+			if (adapter.isAnyChosen()) {
+				mActionLayout.setVisibility(View.VISIBLE);
+				mSwitchLayout.setVisibility(View.GONE);
+			} else {
+				closeActionLayout();
+			}
 		}
 
 	}
@@ -131,8 +153,24 @@ public class GalleryActivity extends Activity {
 		public void onClick(View view) {
 			Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
 			sharingIntent.setType("image/jpeg");
-			sharingIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + mChosenImage));
+			//TODO: fix sharing
+			// sharingIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + mChosenImage));
 			startActivity(Intent.createChooser(sharingIntent, "Share Image"));
+		}
+
+	}
+
+	private class OnDeleteButtonClickListener implements View.OnClickListener {
+
+		@Override
+		public void onClick(View view) {
+			//TODO: fix delete
+			// FileUtils.delete(mChosenImage);
+
+			free();
+			init();
+			mGridView.setSelection(-1);
+			closeActionLayout();
 		}
 
 	}
@@ -141,9 +179,7 @@ public class GalleryActivity extends Activity {
 
 		@Override
 		public void onClick(View view) {
-			mActionLayout.setVisibility(View.GONE);
-			mSwitchLayout.setVisibility(View.VISIBLE);
-			mChosenImage = null;
+			closeActionLayout();
 		}
 
 	}

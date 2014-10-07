@@ -1,7 +1,6 @@
 package me.strlght.campanion.app.adapter;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +10,7 @@ import com.squareup.picasso.Picasso;
 import me.strlght.campanion.app.R;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -22,10 +22,37 @@ public class ImageArrayAdapter extends BaseAdapter {
 
 	private Context mContext;
 	private List<String> mImages;
+	private List<Boolean> mSelected;
 
 	public ImageArrayAdapter(Context context, List<String> images) {
 		mContext = context;
 		mImages = images;
+		mSelected = new ArrayList<Boolean>(mImages.size());
+		clearSelection();
+	}
+
+	public void clearSelection() {
+		mSelected.clear();
+		for (int i = 0; i < mImages.size(); i++) {
+			mSelected.add(false);
+		}
+	}
+
+	public boolean isAnyChosen() {
+		for (int i = 0; i < mImages.size(); i++) {
+			if (mSelected.get(i)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public void setSelected(int i, boolean selected) {
+		mSelected.set(i, selected);
+	}
+
+	public boolean isSelected(int i) {
+		return mSelected.get(i);
 	}
 
 	@Override
@@ -61,18 +88,20 @@ public class ImageArrayAdapter extends BaseAdapter {
 			return null;
 		}
 
+		final String image = mImages.get(i);
+
 		View v = view;
 		if (v == null) {
 			LayoutInflater layoutInflater = LayoutInflater.from(mContext);
 			v = layoutInflater.inflate(R.layout.li_gallery, viewGroup, false);
-			// v.setLayoutParams(new GridView.LayoutParams(256, 256));
 		}
 		ImageView imageView = (ImageView) v.findViewById(R.id.image_view);
 
-		Log.d(TAG, mImages.get(i));
+		boolean isSelected = mSelected.get(i);
+		imageView.setSelected(isSelected);
 
 		Picasso.with(mContext)
-				.load(new File(mImages.get(i)))
+				.load(new File(image))
 				.resize(256, 256)
 				.centerInside()
 				.into(imageView);
