@@ -15,10 +15,7 @@ import me.strlght.campanion.app.R;
 import me.strlght.campanion.app.adapter.ImageArrayAdapter;
 import me.strlght.campanion.app.util.FileUtils;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -66,25 +63,10 @@ public class GalleryActivity extends Activity {
 		init();
 	}
 
-	private List<String> getFiles() {
-		List<String> files;
-		String[] strings = FileUtils.getSaveDirectory().list();
-		if (strings == null) {
-			files = null;
-		} else {
-			String directory = FileUtils.getSaveDirectory().getAbsolutePath();
-			for (int i = 0; i < strings.length; i++) {
-				strings[i] = directory + File.separator + strings[i];
-			}
-			files = Arrays.asList(strings);
-			Collections.reverse(files);
-		}
-
-		return files;
-	}
-
 	private void init() {
-		mGridView.setAdapter(new ImageArrayAdapter(getBaseContext(), getFiles()));
+		mGridView.setAdapter(new ImageArrayAdapter(getBaseContext(),
+				this,
+				FileUtils.getSaveDirectory().getAbsolutePath()));
 	}
 
 	@Override
@@ -98,17 +80,9 @@ public class GalleryActivity extends Activity {
 		mGridView.setAdapter(null);
 	}
 
-	private void updateGridView() {
-		ImageArrayAdapter adapter = (ImageArrayAdapter) mGridView.getAdapter();
-		adapter.setImages(getFiles());
-	}
-
 	private void closeActionLayout() {
 		mActionLayout.setVisibility(View.GONE);
 		mSwitchLayout.setVisibility(View.VISIBLE);
-		ImageArrayAdapter adapter = (ImageArrayAdapter) mGridView.getAdapter();
-		adapter.clearSelection();
-		adapter.notifyDataSetChanged();
 	}
 
 	@Override
@@ -206,11 +180,11 @@ public class GalleryActivity extends Activity {
 		@Override
 		public void onClick(View view) {
 			ImageArrayAdapter adapter = (ImageArrayAdapter) mGridView.getAdapter();
-			for (String image : adapter.getSelected()) {
+			List<String> selection = adapter.getSelected();
+			for (String image : selection) {
 				FileUtils.delete(image);
 			}
 
-			updateGridView();
 			closeActionLayout();
 		}
 

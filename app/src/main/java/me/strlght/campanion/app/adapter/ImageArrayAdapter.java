@@ -1,6 +1,8 @@
 package me.strlght.campanion.app.adapter;
 
+import android.app.Activity;
 import android.content.Context;
+import android.os.FileObserver;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +13,8 @@ import me.strlght.campanion.app.R;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -21,14 +25,24 @@ public class ImageArrayAdapter extends BaseAdapter {
 	public static final String TAG = "ImageArrayAdapter";
 
 	private Context mContext;
+	private Activity mActivity;
 	private List<String> mImages;
 	private List<Boolean> mSelected;
+	private String mPath = null;
+	private FileObserver mObserver;
 
-	public ImageArrayAdapter(Context context, List<String> images) {
+	public ImageArrayAdapter(Context context, Activity activity, String path) {
 		mContext = context;
-		mImages = images;
-		mSelected = new ArrayList<Boolean>(mImages.size());
-		clearSelection();
+		mPath = path;
+		mActivity = activity;
+		mSelected = new ArrayList<Boolean>();
+
+		int flags = FileObserver.CREATE | FileObserver.DELETE | FileObserver.DELETE_SELF
+				| FileObserver.MODIFY | FileObserver.MOVE_SELF | FileObserver.MOVED_FROM
+				| FileObserver.MOVED_FROM;
+		mObserver = new ImageObserver(path, flags);
+		mObserver.onEvent(0, null);
+		mObserver.startWatching();
 	}
 
 	public void clearSelection() {
@@ -45,12 +59,6 @@ public class ImageArrayAdapter extends BaseAdapter {
 			}
 		}
 		return false;
-	}
-
-	public void setImages(List<String> images) {
-		mImages = images;
-		clearSelection();
-		notifyDataSetChanged();
 	}
 
 	public void setSelected(int i, boolean selected) {
@@ -123,6 +131,45 @@ public class ImageArrayAdapter extends BaseAdapter {
 				.into(imageView);
 
 		return v;
+	}
+
+	private class ImageObserver extends FileObserver {
+
+		ImageObserver(String path) {
+			super(path);
+		}
+
+		ImageObserver(String path, int flags) {
+			super(path, flags);
+		}
+
+		@Override
+		public void onEvent(final int i, final String s) {
+			if ((i & FileObserver.MOVE_SELF) != 0) {
+				mPath = s;
+			}
+			String[] strings = new File(mPath).list();
+			if (strings == null) {
+				mImages = null;
+			} else {
+				for (int j = 0; j < strings.length; j++) {
+					strings[j] = mPath + File.separator + strings[j];
+				}
+				mImages = Arrays.asList(strings);
+				Collections.reverse(mImages);
+			}
+
+			clearSelection();
+			mActivity.runOnUiThread(new Runnable() {
+
+				@Override
+				public void run() {
+					notifyDataSetChanged();
+				}
+
+			});
+		}
+
 	}
 
 }
