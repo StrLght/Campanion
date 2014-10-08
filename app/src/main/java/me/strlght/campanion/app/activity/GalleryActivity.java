@@ -65,7 +65,6 @@ public class GalleryActivity extends Activity {
 
 	private void init() {
 		mGridView.setAdapter(new ImageArrayAdapter(getBaseContext(),
-				this,
 				FileUtils.getSaveDirectory().getAbsolutePath()));
 	}
 

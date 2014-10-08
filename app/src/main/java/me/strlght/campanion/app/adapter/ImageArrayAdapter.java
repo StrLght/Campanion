@@ -1,8 +1,9 @@
 package me.strlght.campanion.app.adapter;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.FileObserver;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,16 +26,14 @@ public class ImageArrayAdapter extends BaseAdapter {
 	public static final String TAG = "ImageArrayAdapter";
 
 	private Context mContext;
-	private Activity mActivity;
 	private List<String> mImages;
 	private List<Boolean> mSelected;
 	private String mPath = null;
 	private FileObserver mObserver;
 
-	public ImageArrayAdapter(Context context, Activity activity, String path) {
+	public ImageArrayAdapter(Context context, String path) {
 		mContext = context;
 		mPath = path;
-		mActivity = activity;
 		mSelected = new ArrayList<Boolean>();
 
 		int flags = FileObserver.CREATE | FileObserver.DELETE | FileObserver.DELETE_SELF
@@ -135,6 +134,8 @@ public class ImageArrayAdapter extends BaseAdapter {
 
 	private class ImageObserver extends FileObserver {
 
+		private final Handler mHandler = new Handler(Looper.getMainLooper());
+
 		ImageObserver(String path) {
 			super(path);
 		}
@@ -160,7 +161,7 @@ public class ImageArrayAdapter extends BaseAdapter {
 			}
 
 			clearSelection();
-			mActivity.runOnUiThread(new Runnable() {
+			mHandler.post(new Runnable() {
 
 				@Override
 				public void run() {
