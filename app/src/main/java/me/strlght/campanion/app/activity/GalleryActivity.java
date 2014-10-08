@@ -26,10 +26,14 @@ import java.util.List;
  */
 public class GalleryActivity extends Activity {
 
+	private final static long sDoubleTapInterval = 300;
+
 	private GridView mGridView;
 	private LinearLayout mActionLayout;
 	private LinearLayout mSwitchLayout;
 	private Button mEditButton;
+	private int mLastSelectedElement = -1;
+	private long mLastSelectedTime = 0;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -128,13 +132,21 @@ public class GalleryActivity extends Activity {
 		@Override
 		public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 			ImageArrayAdapter adapter = (ImageArrayAdapter) mGridView.getAdapter();
-			adapter.setSelected(i, !adapter.isSelected(i));
-			//TODO: open preview window on double tap
+			long time = System.currentTimeMillis();
+			boolean isOneOrLessSelected = (adapter.getSelected().size() <= 1);
+			if (i == mLastSelectedElement && (time - mLastSelectedTime) <= sDoubleTapInterval && isOneOrLessSelected) {
+				//TODO: open preview window on double tap
+				return;
+			} else {
+				adapter.setSelected(i, !adapter.isSelected(i));
+				mLastSelectedElement = i;
+				mLastSelectedTime = time;
+			}
 			adapter.notifyDataSetChanged();
 			if (adapter.isAnyChosen()) {
 				mActionLayout.setVisibility(View.VISIBLE);
 				mSwitchLayout.setVisibility(View.GONE);
-				mEditButton.setEnabled(adapter.getSelected().size() <= 1);
+				mEditButton.setEnabled(isOneOrLessSelected);
 			} else {
 				closeActionLayout();
 			}
