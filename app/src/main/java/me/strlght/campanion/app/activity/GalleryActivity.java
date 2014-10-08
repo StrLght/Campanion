@@ -29,6 +29,7 @@ public class GalleryActivity extends Activity {
 	private GridView mGridView;
 	private LinearLayout mActionLayout;
 	private LinearLayout mSwitchLayout;
+	private Button mEditButton;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -39,8 +40,8 @@ public class GalleryActivity extends Activity {
 		cameraButton.setOnClickListener(new OnCameraButtonClickListener());
 
 		mActionLayout = (LinearLayout) findViewById(R.id.action_layout);
-		Button editButton = (Button) findViewById(R.id.edit_button);
-		editButton.setOnClickListener(new OnEditButtonClickListener());
+		mEditButton = (Button) findViewById(R.id.edit_button);
+		mEditButton.setOnClickListener(new OnEditButtonClickListener());
 		Button shareButton = (Button) findViewById(R.id.share_button);
 		shareButton.setOnClickListener(new OnShareButtonClickListener());
 		Button deleteButton = (Button) findViewById(R.id.delete_button);
@@ -133,6 +134,7 @@ public class GalleryActivity extends Activity {
 			if (adapter.isAnyChosen()) {
 				mActionLayout.setVisibility(View.VISIBLE);
 				mSwitchLayout.setVisibility(View.GONE);
+				mEditButton.setEnabled(adapter.getSelected().size() <= 1);
 			} else {
 				closeActionLayout();
 			}
