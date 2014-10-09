@@ -46,6 +46,14 @@ public class ImageDirectoryAdapter extends BaseAdapter {
 		mObserver.startWatching();
 	}
 
+	public void startWatching() {
+		mObserver.startWatching();
+	}
+
+	public void stopWatching() {
+		mObserver.stopWatching();
+	}
+
 	public void clearSelection() {
 		mSelected.clear();
 		for (int i = 0; i < mImages.size(); i++) {
@@ -167,14 +175,12 @@ public class ImageDirectoryAdapter extends BaseAdapter {
 				}
 
 			});
-			if (strings == null) {
-				mImages = null;
-			} else {
-				for (String file : strings) {
-					mImages.add(new File(mPath + File.separator + file));
-				}
-				Collections.reverse(mImages);
+
+			mImages.clear();
+			for (String file : strings) {
+				mImages.add(new File(mPath + File.separator + file));
 			}
+			Collections.reverse(mImages);
 
 			clearSelection();
 			mHandler.post(new Runnable() {

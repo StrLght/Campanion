@@ -1,21 +1,22 @@
 package me.strlght.campanion.app.activity;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.Button;
-import android.widget.GridView;
-import android.widget.LinearLayout;
+import android.widget.*;
 import me.strlght.campanion.app.R;
 import me.strlght.campanion.app.adapter.ImageDirectoryAdapter;
 import me.strlght.campanion.app.util.FileUtils;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,10 +26,11 @@ import java.util.List;
 public class GalleryActivity extends Activity {
 
 	private final static long sDoubleTapInterval = 400;
+	private static final int REQUEST_CODE = 1;
 	private final String mDirectory = FileUtils.getSaveDirectory().getAbsolutePath();
 	private GridView mGridView;
 	private LinearLayout mActionLayout;
-	private LinearLayout mSwitchLayout;
+	private RelativeLayout mSwitchLayout;
 	private Button mEditButton;
 	private int mLastSelectedElement = -1;
 	private long mLastSelectedTime = 0;
@@ -40,6 +42,8 @@ public class GalleryActivity extends Activity {
 
 		Button cameraButton = (Button) findViewById(R.id.camera_button);
 		cameraButton.setOnClickListener(new OnCameraButtonClickListener());
+		Button addButton = (Button) findViewById(R.id.add_button);
+		addButton.setOnClickListener(new OnAddButtonClickListener());
 
 		mActionLayout = (LinearLayout) findViewById(R.id.action_layout);
 		mEditButton = (Button) findViewById(R.id.edit_button);
@@ -51,7 +55,7 @@ public class GalleryActivity extends Activity {
 		Button closeButton = (Button) findViewById(R.id.close_button);
 		closeButton.setOnClickListener(new OnCloseButtonClickListener());
 
-		mSwitchLayout = (LinearLayout) findViewById(R.id.switch_layout);
+		mSwitchLayout = (RelativeLayout) findViewById(R.id.switch_layout);
 
 		mGridView = (GridView) findViewById(R.id.pictures_view);
 		mGridView.setOnItemClickListener(new OnItemClickListener());
@@ -77,12 +81,37 @@ public class GalleryActivity extends Activity {
 	}
 
 	private void free() {
+		closeActionLayout();
+		ImageDirectoryAdapter adapter = (ImageDirectoryAdapter) mGridView.getAdapter();
+		if (adapter != null) {
+			adapter.stopWatching();
+		}
 		mGridView.setAdapter(null);
 	}
 
 	private void closeActionLayout() {
 		mActionLayout.setVisibility(View.GONE);
 		mSwitchLayout.setVisibility(View.VISIBLE);
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+
+		Context context = getBaseContext();
+		if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+			try {
+				InputStream stream = getContentResolver().openInputStream(data.getData());
+				Bitmap bitmap = BitmapFactory.decodeStream(stream);
+				stream.close();
+				FileUtils.save(context, bitmap);
+				return;
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+
+		Toast.makeText(context, R.string.import_fail, Toast.LENGTH_SHORT).show();
 	}
 
 	@Override
@@ -142,6 +171,18 @@ public class GalleryActivity extends Activity {
 
 	}
 
+	private class OnAddButtonClickListener implements View.OnClickListener {
+
+		@Override
+		public void onClick(View view) {
+			Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+			intent.setType("image/*");
+			intent.addCategory(Intent.CATEGORY_OPENABLE);
+			startActivityForResult(intent, REQUEST_CODE);
+		}
+
+	}
+
 	private class OnEditButtonClickListener implements View.OnClickListener {
 
 		@Override
@@ -186,7 +227,9 @@ public class GalleryActivity extends Activity {
 			ImageDirectoryAdapter adapter = (ImageDirectoryAdapter) mGridView.getAdapter();
 			List<File> selection = adapter.getSelected();
 			for (File image : selection) {
-				FileUtils.delete(image);
+				if (!FileUtils.delete(image)) {
+					Toast.makeText(getBaseContext(), R.string.delete_fail, Toast.LENGTH_SHORT).show();
+				}
 			}
 
 			closeActionLayout();
