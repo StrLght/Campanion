@@ -27,8 +27,7 @@ public class FileUtils {
 		return dir;
 	}
 
-	public static boolean delete(String path) {
-		File file = new File(path);
+	public static boolean delete(File file) {
 		return file.delete();
 	}
 

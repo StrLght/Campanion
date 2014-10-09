@@ -12,9 +12,10 @@ import android.widget.Button;
 import android.widget.GridView;
 import android.widget.LinearLayout;
 import me.strlght.campanion.app.R;
-import me.strlght.campanion.app.adapter.ImageArrayAdapter;
+import me.strlght.campanion.app.adapter.ImageDirectoryAdapter;
 import me.strlght.campanion.app.util.FileUtils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,12 +24,13 @@ import java.util.List;
  */
 public class GalleryActivity extends Activity {
 
-	private final static long sDoubleTapInterval = 300;
+	private final static long sDoubleTapInterval = 400;
 
 	private GridView mGridView;
 	private LinearLayout mActionLayout;
 	private LinearLayout mSwitchLayout;
 	private Button mEditButton;
+	private String mDirectory = FileUtils.getSaveDirectory().getAbsolutePath();
 	private int mLastSelectedElement = -1;
 	private long mLastSelectedTime = 0;
 
@@ -64,8 +66,8 @@ public class GalleryActivity extends Activity {
 	}
 
 	private void init() {
-		mGridView.setAdapter(new ImageArrayAdapter(getBaseContext(),
-				FileUtils.getSaveDirectory().getAbsolutePath()));
+		mGridView.setAdapter(new ImageDirectoryAdapter(getBaseContext(),
+				mDirectory));
 	}
 
 	@Override
@@ -104,18 +106,22 @@ public class GalleryActivity extends Activity {
 
 		@Override
 		public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-			ImageArrayAdapter adapter = (ImageArrayAdapter) mGridView.getAdapter();
+			ImageDirectoryAdapter adapter = (ImageDirectoryAdapter) mGridView.getAdapter();
 			long time = System.currentTimeMillis();
-			boolean isOneOrLessSelected = (adapter.getSelected().size() <= 1);
+			List<File> selected = adapter.getSelected();
+			boolean isOneOrLessSelected = (selected.size() <= 1);
 			if (i == mLastSelectedElement && (time - mLastSelectedTime) <= sDoubleTapInterval && isOneOrLessSelected) {
-				//TODO: open preview window on double tap
-				return;
+				if (selected.size() == 1) {
+					Intent intent = new Intent(GalleryActivity.this, PreviewActivity.class);
+					intent.putExtra(PreviewActivity.EXTRA_IMAGE_FILE, selected.get(0));
+					startActivity(intent);
+					return;
+				}
 			} else {
 				adapter.setSelected(i, !adapter.isSelected(i));
 				mLastSelectedElement = i;
 				mLastSelectedTime = time;
 			}
-			adapter.notifyDataSetChanged();
 			if (adapter.isAnyChosen()) {
 				mActionLayout.setVisibility(View.VISIBLE);
 				mSwitchLayout.setVisibility(View.GONE);
@@ -152,19 +158,19 @@ public class GalleryActivity extends Activity {
 		public void onClick(View view) {
 			Intent sharingIntent;
 			String message;
-			ImageArrayAdapter adapter = (ImageArrayAdapter) mGridView.getAdapter();
-			List<String> files = adapter.getSelected();
+			ImageDirectoryAdapter adapter = (ImageDirectoryAdapter) mGridView.getAdapter();
+			List<File> files = adapter.getSelected();
 			if (files.size() == 1) {
 				sharingIntent = new Intent(Intent.ACTION_SEND);
-				sharingIntent.setType("image/jpeg");
-				sharingIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + files.get(0)));
+				sharingIntent.setType("image/*");
+				sharingIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + files.get(0).getAbsolutePath()));
 				message = "Share image";
 			} else {
 				sharingIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
-				sharingIntent.setType("image/jpeg");
+				sharingIntent.setType("image/*");
 				ArrayList<Uri> uris = new ArrayList<Uri>();
-				for (String file : files) {
-					uris.add(Uri.parse("file://" + file));
+				for (File file : files) {
+					uris.add(Uri.parse("file://" + file.getAbsolutePath()));
 				}
 				sharingIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
 				message = "Share images";
@@ -178,9 +184,9 @@ public class GalleryActivity extends Activity {
 
 		@Override
 		public void onClick(View view) {
-			ImageArrayAdapter adapter = (ImageArrayAdapter) mGridView.getAdapter();
-			List<String> selection = adapter.getSelected();
-			for (String image : selection) {
+			ImageDirectoryAdapter adapter = (ImageDirectoryAdapter) mGridView.getAdapter();
+			List<File> selection = adapter.getSelected();
+			for (File image : selection) {
 				FileUtils.delete(image);
 			}
 
