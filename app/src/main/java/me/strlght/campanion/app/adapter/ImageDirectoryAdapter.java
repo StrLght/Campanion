@@ -16,7 +16,6 @@ import me.strlght.campanion.app.R;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 

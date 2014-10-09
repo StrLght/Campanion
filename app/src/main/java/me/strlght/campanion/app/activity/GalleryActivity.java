@@ -25,12 +25,11 @@ import java.util.List;
 public class GalleryActivity extends Activity {
 
 	private final static long sDoubleTapInterval = 400;
-
+	private final String mDirectory = FileUtils.getSaveDirectory().getAbsolutePath();
 	private GridView mGridView;
 	private LinearLayout mActionLayout;
 	private LinearLayout mSwitchLayout;
 	private Button mEditButton;
-	private String mDirectory = FileUtils.getSaveDirectory().getAbsolutePath();
 	private int mLastSelectedElement = -1;
 	private long mLastSelectedTime = 0;
 
