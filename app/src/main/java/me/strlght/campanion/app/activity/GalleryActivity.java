@@ -141,7 +141,8 @@ public class GalleryActivity extends Activity {
 			if (i == mLastSelectedElement && (time - mLastSelectedTime) <= sDoubleTapInterval && isOneOrLessSelected) {
 				if (selected.size() == 1) {
 					Intent intent = new Intent(GalleryActivity.this, PreviewActivity.class);
-					intent.putExtra(PreviewActivity.EXTRA_IMAGE_FILE, selected.get(0));
+					intent.putExtra(PreviewActivity.EXTRA_IMAGE_POSITION, i);
+					intent.putExtra(PreviewActivity.EXTRA_IMAGE_DIRECTORY, mDirectory);
 					startActivity(intent);
 					return;
 				}

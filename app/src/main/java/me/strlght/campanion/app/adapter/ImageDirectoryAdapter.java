@@ -123,19 +123,11 @@ public class ImageDirectoryAdapter extends BaseAdapter {
 
 	@Override
 	public long getItemId(int i) {
-		if (mImages != null) {
-			return mImages.get(i).hashCode();
-		} else {
-			return 0;
-		}
+		return mImages.get(i).hashCode();
 	}
 
 	@Override
 	public View getView(int i, View view, ViewGroup viewGroup) {
-		if (mImages == null) {
-			return null;
-		}
-
 		final String image = mImages.get(i).getAbsolutePath();
 
 		View v = view;
