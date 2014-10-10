@@ -27,6 +27,7 @@ public class PreviewFragment extends Fragment {
 	private ImageViewTouch mImageView;
 	private TextView mTextView;
 	private ImageViewTarget mTarget;
+	private boolean mIsVisible = false;
 
 	public static PreviewFragment newInstance(File image) {
 		PreviewFragment previewFragment = new PreviewFragment();
@@ -58,21 +59,37 @@ public class PreviewFragment extends Fragment {
 	}
 
 	@Override
+	public void onStart() {
+		super.onStart();
+
+		if (mIsVisible) {
+			load();
+		}
+	}
+
+	@Override
 	public void setUserVisibleHint(boolean isVisibleToUser) {
 		super.setUserVisibleHint(isVisibleToUser);
 
-		if (isVisibleToUser) {
-			Picasso.with(getActivity().getBaseContext())
-					.load(mImage)
-					.resize(1024, 1024)
-					.centerInside()
-					.into(mTarget);
-		} else {
-			if (mTarget != null) {
-				Picasso.with(getActivity().getBaseContext())
-						.cancelRequest(mTarget);
+		mIsVisible = isVisibleToUser;
+		if (getView() != null) {
+			if (mIsVisible) {
+				load();
+			} else {
+				if (mTarget != null) {
+					Picasso.with(getActivity().getBaseContext())
+							.cancelRequest(mTarget);
+				}
 			}
 		}
+	}
+
+	private void load() {
+		Picasso.with(getActivity().getBaseContext())
+				.load(mImage)
+				.resize(1536, 1536)
+				.centerInside()
+				.into(mTarget);
 	}
 
 	private class ImageViewTarget implements Target {
