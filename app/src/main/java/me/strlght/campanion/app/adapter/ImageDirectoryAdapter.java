@@ -7,14 +7,13 @@ import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.MimeTypeMap;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import com.squareup.picasso.Picasso;
 import me.strlght.campanion.app.R;
+import me.strlght.campanion.app.observer.ImageObserver;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -26,11 +25,12 @@ public class ImageDirectoryAdapter extends BaseAdapter {
 
 	public static final String TAG = "ImageArrayAdapter";
 
+	private final Handler mHandler = new Handler(Looper.getMainLooper());
 	private Context mContext;
 	private List<File> mImages;
 	private List<Boolean> mSelected;
 	private String mPath = null;
-	private FileObserver mObserver;
+	private ImageObserver mObserver;
 
 	public ImageDirectoryAdapter(Context context, String path) {
 		mContext = context;
@@ -42,6 +42,28 @@ public class ImageDirectoryAdapter extends BaseAdapter {
 				| FileObserver.MODIFY | FileObserver.MOVE_SELF | FileObserver.MOVED_FROM
 				| FileObserver.MOVED_FROM;
 		mObserver = new ImageObserver(path, flags);
+		mObserver.setCallback(new ImageObserver.ImageObserverCallback() {
+
+			@Override
+			public void onDirectoryChange(String[] files) {
+				mImages.clear();
+				for (String file : files) {
+					mImages.add(new File(mPath + File.separator + file));
+				}
+				Collections.reverse(mImages);
+
+				clearSelection();
+				mHandler.post(new Runnable() {
+
+					@Override
+					public void run() {
+						notifyDataSetChanged();
+					}
+
+				});
+			}
+
+		});
 		mObserver.onEvent(0, null);
 		mObserver.startWatching();
 	}
@@ -91,20 +113,12 @@ public class ImageDirectoryAdapter extends BaseAdapter {
 
 	@Override
 	public int getCount() {
-		if (mImages != null) {
-			return mImages.size();
-		} else {
-			return 0;
-		}
+		return mImages.size();
 	}
 
 	@Override
 	public Object getItem(int i) {
-		if (mImages != null) {
-			return mImages.get(i);
-		} else {
-			return null;
-		}
+		return mImages.get(i);
 	}
 
 	@Override
@@ -141,58 +155,6 @@ public class ImageDirectoryAdapter extends BaseAdapter {
 				.into(imageView);
 
 		return v;
-	}
-
-	private class ImageObserver extends FileObserver {
-
-		private final Handler mHandler = new Handler(Looper.getMainLooper());
-
-		ImageObserver(String path) {
-			super(path);
-		}
-
-		ImageObserver(String path, int flags) {
-			super(path, flags);
-		}
-
-		@Override
-		public void onEvent(final int i, final String s) {
-			if ((i & FileObserver.MOVE_SELF) != 0) {
-				mPath = s;
-			}
-			String[] strings = new File(mPath).list(new FilenameFilter() {
-
-				@Override
-				public boolean accept(File file, String s) {
-					String extension = MimeTypeMap.getFileExtensionFromUrl(file.getAbsolutePath() + s);
-					if (extension != null) {
-						MimeTypeMap mime = MimeTypeMap.getSingleton();
-						if (mime.getMimeTypeFromExtension(extension).startsWith("image")) {
-							return true;
-						}
-					}
-					return false;
-				}
-
-			});
-
-			mImages.clear();
-			for (String file : strings) {
-				mImages.add(new File(mPath + File.separator + file));
-			}
-			Collections.reverse(mImages);
-
-			clearSelection();
-			mHandler.post(new Runnable() {
-
-				@Override
-				public void run() {
-					notifyDataSetChanged();
-				}
-
-			});
-		}
-
 	}
 
 }
