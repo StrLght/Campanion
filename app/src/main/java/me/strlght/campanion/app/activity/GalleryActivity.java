@@ -134,29 +134,31 @@ public class GalleryActivity extends Activity {
 
 		@Override
 		public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-			ImageDirectoryAdapter adapter = (ImageDirectoryAdapter) mGridView.getAdapter();
-			long time = System.currentTimeMillis();
-			List<File> selected = adapter.getSelected();
-			boolean isOneOrLessSelected = (selected.size() <= 1);
-			if (i == mLastSelectedElement && (time - mLastSelectedTime) <= sDoubleTapInterval && isOneOrLessSelected) {
-				if (selected.size() == 1) {
-					Intent intent = new Intent(GalleryActivity.this, PreviewActivity.class);
-					intent.putExtra(PreviewActivity.EXTRA_IMAGE_POSITION, i);
-					intent.putExtra(PreviewActivity.EXTRA_IMAGE_DIRECTORY, mDirectory);
-					startActivity(intent);
-					return;
+			synchronized (this) {
+				ImageDirectoryAdapter adapter = (ImageDirectoryAdapter) mGridView.getAdapter();
+				long time = System.currentTimeMillis();
+				List<File> selected = adapter.getSelected();
+				boolean isOneOrLessSelected = (selected.size() <= 1);
+				if (i == mLastSelectedElement && (time - mLastSelectedTime) <= sDoubleTapInterval && isOneOrLessSelected) {
+					if (selected.size() == 1) {
+						Intent intent = new Intent(GalleryActivity.this, PreviewActivity.class);
+						intent.putExtra(PreviewActivity.EXTRA_IMAGE_POSITION, i);
+						intent.putExtra(PreviewActivity.EXTRA_IMAGE_DIRECTORY, mDirectory);
+						startActivity(intent);
+						return;
+					}
 				}
-			} else {
 				adapter.setSelected(i, !adapter.isSelected(i));
 				mLastSelectedElement = i;
 				mLastSelectedTime = time;
-			}
-			if (adapter.isAnyChosen()) {
-				mActionLayout.setVisibility(View.VISIBLE);
-				mSwitchLayout.setVisibility(View.GONE);
-				mEditButton.setEnabled(isOneOrLessSelected);
-			} else {
-				closeActionLayout();
+				isOneOrLessSelected = (adapter.getSelected().size() <= 1);
+				if (adapter.isAnyChosen()) {
+					mActionLayout.setVisibility(View.VISIBLE);
+					mSwitchLayout.setVisibility(View.GONE);
+					mEditButton.setEnabled(isOneOrLessSelected);
+				} else {
+					closeActionLayout();
+				}
 			}
 		}
 
