@@ -54,19 +54,23 @@ public class ImageDirectoryAdapter extends BaseAdapter {
 				Collections.reverse(mImages);
 
 				clearSelection();
-				mHandler.post(new Runnable() {
-
-					@Override
-					public void run() {
-						notifyDataSetChanged();
-					}
-
-				});
 			}
 
 		});
 		mObserver.onEvent(0, null);
 		mObserver.startWatching();
+	}
+
+	@Override
+	public void notifyDataSetChanged() {
+		mHandler.post(new Runnable() {
+
+			@Override
+			public void run() {
+				ImageDirectoryAdapter.super.notifyDataSetChanged();
+			}
+
+		});
 	}
 
 	public void startWatching() {

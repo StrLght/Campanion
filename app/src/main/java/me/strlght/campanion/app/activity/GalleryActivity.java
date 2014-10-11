@@ -222,6 +222,7 @@ public class GalleryActivity extends Activity {
 				}
 			}
 			setMenuActionsVisible(false);
+			adapter.notifyDataSetChanged();
 			return true;
 		}
 
