@@ -139,7 +139,11 @@ public class GalleryActivity extends Activity {
 				long time = System.currentTimeMillis();
 				List<File> selected = adapter.getSelected();
 				boolean isOneOrLessSelected = (selected.size() <= 1);
-				if (i == mLastSelectedElement && (time - mLastSelectedTime) <= sDoubleTapInterval && isOneOrLessSelected) {
+				boolean isSelected = adapter.isSelected(i);
+				if (i == mLastSelectedElement
+						&& (time - mLastSelectedTime) <= sDoubleTapInterval
+						&& isOneOrLessSelected
+						&& isSelected) {
 					if (selected.size() == 1) {
 						Intent intent = new Intent(GalleryActivity.this, PreviewActivity.class);
 						intent.putExtra(PreviewActivity.EXTRA_IMAGE_POSITION, i);
@@ -148,7 +152,7 @@ public class GalleryActivity extends Activity {
 						return;
 					}
 				}
-				adapter.setSelected(i, !adapter.isSelected(i));
+				adapter.setSelected(i, !isSelected);
 				mLastSelectedElement = i;
 				mLastSelectedTime = time;
 				isOneOrLessSelected = (adapter.getSelected().size() <= 1);
@@ -206,7 +210,8 @@ public class GalleryActivity extends Activity {
 			if (files.size() == 1) {
 				sharingIntent = new Intent(Intent.ACTION_SEND);
 				sharingIntent.setType("image/*");
-				sharingIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + files.get(0).getAbsolutePath()));
+				sharingIntent.putExtra(Intent.EXTRA_STREAM,
+						Uri.parse("file://" + files.get(0).getAbsolutePath()));
 				message = "Share image";
 			} else {
 				sharingIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
