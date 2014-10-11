@@ -24,8 +24,13 @@ public class PreviewActivity extends FragmentActivity {
 		setContentView(R.layout.ac_preview);
 
 		Intent intent = getIntent();
-		mPosition = intent.getIntExtra(EXTRA_IMAGE_POSITION, 0);
 		mDirectory = intent.getStringExtra(EXTRA_IMAGE_DIRECTORY);
+
+		if (savedInstanceState == null) {
+			mPosition = intent.getIntExtra(EXTRA_IMAGE_POSITION, 0);
+		} else {
+			mPosition = savedInstanceState.getInt(EXTRA_IMAGE_POSITION);
+		}
 
 		mPreviewPager = (ViewPager) findViewById(R.id.preview_pager);
 	}
@@ -46,6 +51,13 @@ public class PreviewActivity extends FragmentActivity {
 		ImageDirectoryPagerAdapter adapter = (ImageDirectoryPagerAdapter) mPreviewPager.getAdapter();
 		adapter.stopWatching();
 		mPreviewPager.setAdapter(null);
+	}
+
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+
+		outState.putInt(EXTRA_IMAGE_POSITION, mPosition);
 	}
 
 	@Override
