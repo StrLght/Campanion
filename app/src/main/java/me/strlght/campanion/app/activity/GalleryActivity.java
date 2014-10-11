@@ -9,9 +9,13 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.*;
+import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.GridView;
+import android.widget.Toast;
 import me.strlght.campanion.app.R;
 import me.strlght.campanion.app.adapter.ImageDirectoryAdapter;
+import me.strlght.campanion.app.listener.OnEditButtonClickListener;
 import me.strlght.campanion.app.util.FileUtils;
 import me.strlght.campanion.app.util.ShareUtils;
 
@@ -28,9 +32,7 @@ public class GalleryActivity extends Activity {
 	private static final int REQUEST_CODE = 1;
 	private final String mDirectory = FileUtils.getSaveDirectory().getAbsolutePath();
 	private GridView mGridView;
-	private LinearLayout mActionLayout;
-	private RelativeLayout mSwitchLayout;
-	private Button mEditButton;
+	private Menu mMenu;
 	private int mLastSelectedElement = -1;
 	private long mLastSelectedTime = 0;
 
@@ -43,18 +45,6 @@ public class GalleryActivity extends Activity {
 		cameraButton.setOnClickListener(new OnCameraButtonClickListener());
 		Button addButton = (Button) findViewById(R.id.add_button);
 		addButton.setOnClickListener(new OnAddButtonClickListener());
-
-		mActionLayout = (LinearLayout) findViewById(R.id.action_layout);
-		mEditButton = (Button) findViewById(R.id.edit_button);
-		mEditButton.setOnClickListener(new OnEditButtonClickListener());
-		Button shareButton = (Button) findViewById(R.id.share_button);
-		shareButton.setOnClickListener(new OnShareButtonClickListener());
-		Button deleteButton = (Button) findViewById(R.id.delete_button);
-		deleteButton.setOnClickListener(new OnDeleteButtonClickListener());
-		Button closeButton = (Button) findViewById(R.id.close_button);
-		closeButton.setOnClickListener(new OnCloseButtonClickListener());
-
-		mSwitchLayout = (RelativeLayout) findViewById(R.id.switch_layout);
 
 		mGridView = (GridView) findViewById(R.id.pictures_view);
 		mGridView.setOnItemClickListener(new OnItemClickListener());
@@ -80,7 +70,7 @@ public class GalleryActivity extends Activity {
 	}
 
 	private void free() {
-		closeActionLayout();
+		setMenuActionsVisible(false);
 		ImageDirectoryAdapter adapter = (ImageDirectoryAdapter) mGridView.getAdapter();
 		if (adapter != null) {
 			adapter.stopWatching();
@@ -88,9 +78,11 @@ public class GalleryActivity extends Activity {
 		mGridView.setAdapter(null);
 	}
 
-	private void closeActionLayout() {
-		mActionLayout.setVisibility(View.GONE);
-		mSwitchLayout.setVisibility(View.VISIBLE);
+	private void setMenuActionsVisible(boolean visibility) {
+		mMenu.findItem(R.id.action_edit).setEnabled(visibility);
+		mMenu.findItem(R.id.action_share).setEnabled(visibility);
+		mMenu.findItem(R.id.action_delete).setEnabled(visibility);
+		mMenu.findItem(R.id.action_deselect).setEnabled(visibility);
 	}
 
 	@Override
@@ -116,17 +108,34 @@ public class GalleryActivity extends Activity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.gallery, menu);
-		return true;
-	}
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		//TODO: add menu
-		int id = item.getItemId();
-		if (id == R.id.action_settings) {
-			return true;
-		}
-		return super.onOptionsItemSelected(item);
+		//TODO: add settings
+
+		mMenu = menu;
+
+		menu.findItem(R.id.action_edit).setOnMenuItemClickListener(new OnEditButtonClickListener(
+				new OnEditButtonClickListener.EditImageGetter() {
+
+					@Override
+					public File getImage() {
+						ImageDirectoryAdapter adapter = (ImageDirectoryAdapter) mGridView.getAdapter();
+						return (File) adapter.getItem(adapter.getFirstSelectedIndex());
+					}
+
+					@Override
+					public Activity getActivity() {
+						return GalleryActivity.this;
+					}
+
+				}));
+
+		menu.findItem(R.id.action_share).setOnMenuItemClickListener(new OnShareButtonClickListener());
+
+		menu.findItem(R.id.action_delete).setOnMenuItemClickListener(new OnDeleteButtonClickListener());
+
+		menu.findItem(R.id.action_deselect).setOnMenuItemClickListener(new OnCloseButtonClickListener());
+
+		return true;
 	}
 
 	private class OnItemClickListener implements GridView.OnItemClickListener {
@@ -154,14 +163,10 @@ public class GalleryActivity extends Activity {
 				adapter.setSelected(i, !isSelected);
 				mLastSelectedElement = i;
 				mLastSelectedTime = time;
-				isOneOrLessSelected = (adapter.getSelected().size() <= 1);
-				if (adapter.isAnyChosen()) {
-					mActionLayout.setVisibility(View.VISIBLE);
-					mSwitchLayout.setVisibility(View.GONE);
-					mEditButton.setEnabled(isOneOrLessSelected);
-				} else {
-					closeActionLayout();
-				}
+
+				boolean isOneElementSelected = (adapter.getSelected().size() == 1);
+				setMenuActionsVisible(adapter.isAnySelected());
+				mMenu.findItem(R.id.action_edit).setEnabled(isOneElementSelected);
 			}
 		}
 
@@ -189,19 +194,10 @@ public class GalleryActivity extends Activity {
 
 	}
 
-	private class OnEditButtonClickListener implements View.OnClickListener {
+	private class OnShareButtonClickListener implements MenuItem.OnMenuItemClickListener {
 
 		@Override
-		public void onClick(View view) {
-			//TODO: do something
-		}
-
-	}
-
-	private class OnShareButtonClickListener implements View.OnClickListener {
-
-		@Override
-		public void onClick(View view) {
+		public boolean onMenuItemClick(MenuItem menuItem) {
 			ImageDirectoryAdapter adapter = (ImageDirectoryAdapter) mGridView.getAdapter();
 			List<File> files = adapter.getSelected();
 			if (files.size() == 1) {
@@ -209,14 +205,15 @@ public class GalleryActivity extends Activity {
 			} else {
 				ShareUtils.shareImages(GalleryActivity.this, files);
 			}
+			return true;
 		}
 
 	}
 
-	private class OnDeleteButtonClickListener implements View.OnClickListener {
+	private class OnDeleteButtonClickListener implements MenuItem.OnMenuItemClickListener {
 
 		@Override
-		public void onClick(View view) {
+		public boolean onMenuItemClick(MenuItem menuItem) {
 			ImageDirectoryAdapter adapter = (ImageDirectoryAdapter) mGridView.getAdapter();
 			List<File> selection = adapter.getSelected();
 			for (File image : selection) {
@@ -224,17 +221,20 @@ public class GalleryActivity extends Activity {
 					Toast.makeText(getBaseContext(), R.string.delete_fail, Toast.LENGTH_SHORT).show();
 				}
 			}
-
-			closeActionLayout();
+			setMenuActionsVisible(false);
+			return true;
 		}
 
 	}
 
-	private class OnCloseButtonClickListener implements View.OnClickListener {
+	private class OnCloseButtonClickListener implements MenuItem.OnMenuItemClickListener {
 
 		@Override
-		public void onClick(View view) {
-			closeActionLayout();
+		public boolean onMenuItemClick(MenuItem menuItem) {
+			ImageDirectoryAdapter adapter = (ImageDirectoryAdapter) mGridView.getAdapter();
+			adapter.clearSelection();
+			setMenuActionsVisible(false);
+			return true;
 		}
 
 	}

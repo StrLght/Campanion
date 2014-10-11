@@ -1,16 +1,16 @@
 package me.strlght.campanion.app.activity;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
 import me.strlght.campanion.app.R;
 import me.strlght.campanion.app.adapter.ImageDirectoryPagerAdapter;
+import me.strlght.campanion.app.listener.OnEditButtonClickListener;
 import me.strlght.campanion.app.util.FileUtils;
 import me.strlght.campanion.app.util.ShareUtils;
 
@@ -40,12 +40,6 @@ public class PreviewActivity extends FragmentActivity {
 		}
 
 		mPreviewPager = (ViewPager) findViewById(R.id.preview_pager);
-
-		Button editButton = (Button) findViewById(R.id.edit_button);
-		Button shareButton = (Button) findViewById(R.id.share_button);
-		shareButton.setOnClickListener(new OnShareButtonClickListener());
-		Button deleteButton = (Button) findViewById(R.id.delete_button);
-		deleteButton.setOnClickListener(new OnDeleteButtonClickListener());
 	}
 
 	@Override
@@ -76,38 +70,55 @@ public class PreviewActivity extends FragmentActivity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.preview, menu);
+
+		//TODO: add settings
+
+		menu.findItem(R.id.action_edit).setOnMenuItemClickListener(new OnEditButtonClickListener(
+				new OnEditButtonClickListener.EditImageGetter() {
+
+					@Override
+					public File getImage() {
+						ImageDirectoryPagerAdapter adapter = (ImageDirectoryPagerAdapter) mPreviewPager.getAdapter();
+						return adapter.getImage(mPreviewPager.getCurrentItem());
+					}
+
+					@Override
+					public Activity getActivity() {
+						return PreviewActivity.this;
+					}
+
+				}
+		));
+
+		menu.findItem(R.id.action_share).setOnMenuItemClickListener(new OnShareButtonClickListener());
+
+		menu.findItem(R.id.action_delete).setOnMenuItemClickListener(new OnDeleteButtonClickListener());
+
 		return true;
 	}
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		int id = item.getItemId();
-		if (id == R.id.action_settings) {
-			return true;
-		}
-		return super.onOptionsItemSelected(item);
-	}
-
-	private class OnShareButtonClickListener implements View.OnClickListener {
+	private class OnShareButtonClickListener implements MenuItem.OnMenuItemClickListener {
 
 		@Override
-		public void onClick(View view) {
+		public boolean onMenuItemClick(MenuItem menuItem) {
 			ImageDirectoryPagerAdapter adapter = (ImageDirectoryPagerAdapter) mPreviewPager.getAdapter();
 			File file = adapter.getImage(mPreviewPager.getCurrentItem());
 			ShareUtils.shareImage(PreviewActivity.this, file);
+			return true;
 		}
 
 	}
 
-	private class OnDeleteButtonClickListener implements View.OnClickListener {
+	private class OnDeleteButtonClickListener implements MenuItem.OnMenuItemClickListener {
 
 		@Override
-		public void onClick(View view) {
+		public boolean onMenuItemClick(MenuItem menuItem) {
 			ImageDirectoryPagerAdapter adapter = (ImageDirectoryPagerAdapter) mPreviewPager.getAdapter();
 			File selection = adapter.getImage(mPreviewPager.getCurrentItem());
 			if (!FileUtils.delete(selection)) {
 				Toast.makeText(getBaseContext(), R.string.delete_fail, Toast.LENGTH_SHORT).show();
 			}
+			return true;
 		}
 
 	}

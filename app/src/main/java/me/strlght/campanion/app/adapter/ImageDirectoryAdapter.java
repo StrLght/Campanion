@@ -24,7 +24,7 @@ import java.util.List;
  */
 public class ImageDirectoryAdapter extends BaseAdapter {
 
-	public static final String TAG = "ImageArrayAdapter";
+	private static final String TAG = "ImageDirectoryAdapter";
 
 	private final Handler mHandler = new Handler(Looper.getMainLooper());
 	private Context mContext;
@@ -82,15 +82,25 @@ public class ImageDirectoryAdapter extends BaseAdapter {
 		for (int i = 0; i < mImages.size(); i++) {
 			mSelected.add(false);
 		}
+		notifyDataSetChanged();
 	}
 
-	public boolean isAnyChosen() {
-		for (int i = 0; i < mImages.size(); i++) {
-			if (mSelected.get(i)) {
+	public boolean isAnySelected() {
+		for (boolean isSelected : mSelected) {
+			if (isSelected) {
 				return true;
 			}
 		}
 		return false;
+	}
+
+	public int getFirstSelectedIndex() {
+		for (int i = 0; i < mSelected.size(); i++) {
+			if (mSelected.get(i)) {
+				return i;
+			}
+		}
+		return -1;
 	}
 
 	public void setSelected(int i, boolean selected) {
