@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import com.squareup.picasso.Picasso;
 import me.strlght.campanion.app.R;
@@ -135,15 +136,20 @@ public class ImageDirectoryAdapter extends BaseAdapter {
 			LayoutInflater layoutInflater = LayoutInflater.from(mContext);
 			v = layoutInflater.inflate(R.layout.li_gallery, viewGroup, false);
 		}
+
+		FrameLayout imageLayout = (FrameLayout) v.findViewById(R.id.image_layout);
 		ImageView imageView = (ImageView) v.findViewById(R.id.image_view);
 
-		boolean isSelected = mSelected.get(i);
-		imageView.setSelected(isSelected);
+		if (mSelected.get(i)) {
+			imageLayout.setForeground(mContext.getResources().getDrawable(R.drawable.selector_gallery));
+		} else {
+			imageLayout.setForeground(mContext.getResources().getDrawable(R.color.transparent));
+		}
 
 		Picasso.with(mContext)
 				.load(new File(image))
 				.resize(256, 256)
-				.centerInside()
+				.centerCrop()
 				.into(imageView);
 
 		return v;
