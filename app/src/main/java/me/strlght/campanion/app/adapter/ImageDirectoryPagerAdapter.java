@@ -5,7 +5,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import me.strlght.campanion.app.fragment.PreviewFragment;
 import me.strlght.campanion.app.observer.ImageObserver;
 
@@ -17,7 +17,7 @@ import java.util.List;
 /**
  * Created by starlight on 10/10/14.
  */
-public class ImageDirectoryPagerAdapter extends FragmentPagerAdapter {
+public class ImageDirectoryPagerAdapter extends FragmentStatePagerAdapter {
 
 	private static final String TAG = "ImageDirectoryPagerAdapter";
 	private final Handler mHandler = new Handler(Looper.getMainLooper());
@@ -65,6 +65,15 @@ public class ImageDirectoryPagerAdapter extends FragmentPagerAdapter {
 
 	public void stopWatching() {
 		mObserver.stopWatching();
+	}
+
+	public File getImage(int i) {
+		return mImages.get(i);
+	}
+
+	@Override
+	public int getItemPosition(Object object) {
+		return POSITION_NONE;
 	}
 
 	@Override

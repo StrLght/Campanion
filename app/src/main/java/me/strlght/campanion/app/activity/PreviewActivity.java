@@ -6,8 +6,15 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.Toast;
 import me.strlght.campanion.app.R;
 import me.strlght.campanion.app.adapter.ImageDirectoryPagerAdapter;
+import me.strlght.campanion.app.util.FileUtils;
+import me.strlght.campanion.app.util.ShareUtils;
+
+import java.io.File;
 
 public class PreviewActivity extends FragmentActivity {
 
@@ -33,6 +40,12 @@ public class PreviewActivity extends FragmentActivity {
 		}
 
 		mPreviewPager = (ViewPager) findViewById(R.id.preview_pager);
+
+		Button editButton = (Button) findViewById(R.id.edit_button);
+		Button shareButton = (Button) findViewById(R.id.share_button);
+		shareButton.setOnClickListener(new OnShareButtonClickListener());
+		Button deleteButton = (Button) findViewById(R.id.delete_button);
+		deleteButton.setOnClickListener(new OnDeleteButtonClickListener());
 	}
 
 	@Override
@@ -73,6 +86,30 @@ public class PreviewActivity extends FragmentActivity {
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+
+	private class OnShareButtonClickListener implements View.OnClickListener {
+
+		@Override
+		public void onClick(View view) {
+			ImageDirectoryPagerAdapter adapter = (ImageDirectoryPagerAdapter) mPreviewPager.getAdapter();
+			File file = adapter.getImage(mPreviewPager.getCurrentItem());
+			ShareUtils.shareImage(PreviewActivity.this, file);
+		}
+
+	}
+
+	private class OnDeleteButtonClickListener implements View.OnClickListener {
+
+		@Override
+		public void onClick(View view) {
+			ImageDirectoryPagerAdapter adapter = (ImageDirectoryPagerAdapter) mPreviewPager.getAdapter();
+			File selection = adapter.getImage(mPreviewPager.getCurrentItem());
+			if (!FileUtils.delete(selection)) {
+				Toast.makeText(getBaseContext(), R.string.delete_fail, Toast.LENGTH_SHORT).show();
+			}
+		}
+
 	}
 
 }

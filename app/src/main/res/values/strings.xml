@@ -11,8 +11,11 @@
     <string name="title_activity_preview">PreviewActivity</string>
     <string name="import_fail">Import failed</string>
     <string name="delete_fail">Delete failed</string>
-    <string name="loading">Loading...</string>
+    <string name="loading">Loading…</string>
     <string name="loading_fail">Error</string>
-
+    <string name="edit_button_text">Edit</string>
+    <string name="share_button_text">Share</string>
+    <string name="delete_button_text">Delete</string>
+    <string name="close_button_text">Close</string>
 
 </resources>

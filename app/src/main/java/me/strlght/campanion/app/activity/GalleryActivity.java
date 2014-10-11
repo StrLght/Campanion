@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -14,10 +13,10 @@ import android.widget.*;
 import me.strlght.campanion.app.R;
 import me.strlght.campanion.app.adapter.ImageDirectoryAdapter;
 import me.strlght.campanion.app.util.FileUtils;
+import me.strlght.campanion.app.util.ShareUtils;
 
 import java.io.File;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -203,27 +202,13 @@ public class GalleryActivity extends Activity {
 
 		@Override
 		public void onClick(View view) {
-			Intent sharingIntent;
-			String message;
 			ImageDirectoryAdapter adapter = (ImageDirectoryAdapter) mGridView.getAdapter();
 			List<File> files = adapter.getSelected();
 			if (files.size() == 1) {
-				sharingIntent = new Intent(Intent.ACTION_SEND);
-				sharingIntent.setType("image/*");
-				sharingIntent.putExtra(Intent.EXTRA_STREAM,
-						Uri.parse("file://" + files.get(0).getAbsolutePath()));
-				message = "Share image";
+				ShareUtils.shareImage(GalleryActivity.this, files.get(0));
 			} else {
-				sharingIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
-				sharingIntent.setType("image/*");
-				ArrayList<Uri> uris = new ArrayList<Uri>();
-				for (File file : files) {
-					uris.add(Uri.parse("file://" + file.getAbsolutePath()));
-				}
-				sharingIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
-				message = "Share images";
+				ShareUtils.shareImages(GalleryActivity.this, files);
 			}
-			startActivity(Intent.createChooser(sharingIntent, message));
 		}
 
 	}
