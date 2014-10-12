@@ -10,8 +10,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.GridView;
+import android.widget.ImageButton;
 import android.widget.Toast;
 import me.strlght.campanion.app.R;
 import me.strlght.campanion.app.adapter.ImageDirectoryAdapter;
@@ -41,9 +41,9 @@ public class GalleryActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.ac_gallery);
 
-		Button cameraButton = (Button) findViewById(R.id.camera_button);
+		ImageButton cameraButton = (ImageButton) findViewById(R.id.camera_button);
 		cameraButton.setOnClickListener(new OnCameraButtonClickListener());
-		Button addButton = (Button) findViewById(R.id.add_button);
+		ImageButton addButton = (ImageButton) findViewById(R.id.add_button);
 		addButton.setOnClickListener(new OnAddButtonClickListener());
 
 		mGridView = (GridView) findViewById(R.id.pictures_view);
@@ -70,7 +70,7 @@ public class GalleryActivity extends Activity {
 	}
 
 	private void free() {
-		setMenuActionsVisible(false);
+		setMenuActionsEnabled(false);
 		ImageDirectoryAdapter adapter = (ImageDirectoryAdapter) mGridView.getAdapter();
 		if (adapter != null) {
 			adapter.stopWatching();
@@ -78,11 +78,17 @@ public class GalleryActivity extends Activity {
 		mGridView.setAdapter(null);
 	}
 
-	private void setMenuActionsVisible(boolean visibility) {
-		mMenu.findItem(R.id.action_edit).setEnabled(visibility);
-		mMenu.findItem(R.id.action_share).setEnabled(visibility);
-		mMenu.findItem(R.id.action_delete).setEnabled(visibility);
-		mMenu.findItem(R.id.action_deselect).setEnabled(visibility);
+	private void setMenuActionsEnabled(boolean visibility) {
+		setMenuItemEnabled(mMenu.findItem(R.id.action_edit), visibility);
+		setMenuItemEnabled(mMenu.findItem(R.id.action_share), visibility);
+		setMenuItemEnabled(mMenu.findItem(R.id.action_delete), visibility);
+		setMenuItemEnabled(mMenu.findItem(R.id.action_deselect), visibility);
+	}
+
+	private void setMenuItemEnabled(MenuItem item, boolean visibility) {
+		if (item != null) {
+			item.setEnabled(visibility);
+		}
 	}
 
 	@Override
@@ -165,7 +171,7 @@ public class GalleryActivity extends Activity {
 				mLastSelectedTime = time;
 
 				boolean isOneElementSelected = (adapter.getSelected().size() == 1);
-				setMenuActionsVisible(adapter.isAnySelected());
+				setMenuActionsEnabled(adapter.isAnySelected());
 				mMenu.findItem(R.id.action_edit).setEnabled(isOneElementSelected);
 			}
 		}
@@ -221,7 +227,7 @@ public class GalleryActivity extends Activity {
 					Toast.makeText(getBaseContext(), R.string.delete_fail, Toast.LENGTH_SHORT).show();
 				}
 			}
-			setMenuActionsVisible(false);
+			setMenuActionsEnabled(false);
 			adapter.notifyDataSetChanged();
 			return true;
 		}
@@ -234,7 +240,7 @@ public class GalleryActivity extends Activity {
 		public boolean onMenuItemClick(MenuItem menuItem) {
 			ImageDirectoryAdapter adapter = (ImageDirectoryAdapter) mGridView.getAdapter();
 			adapter.clearSelection();
-			setMenuActionsVisible(false);
+			setMenuActionsEnabled(false);
 			return true;
 		}
 
