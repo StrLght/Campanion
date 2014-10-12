@@ -193,12 +193,14 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 		mCameraInfo = new Camera.CameraInfo();
 		Camera.getCameraInfo(mCameraId, mCameraInfo);
 		Camera.Parameters parameters = mCamera.getParameters();
+		parameters.setJpegQuality(100);
 		List<String> focusModes = parameters.getSupportedFocusModes();
 		if (focusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
 			parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
 		}
 		mCamera.setParameters(parameters);
 		updatePreviewSize();
+		setBestPictureQuality();
 		startPreview(getHolder());
 	}
 
@@ -250,6 +252,20 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 		} catch (IOException e) {
 			Log.d(TAG, "Failed to start preview");
 		}
+	}
+
+	private void setBestPictureQuality() {
+		int surface = -1;
+		Camera.Size bestSize = null;
+		Camera.Parameters parameters = mCamera.getParameters();
+		for (Camera.Size size : parameters.getSupportedPictureSizes()) {
+			if (size.width * size.height >= surface) {
+				surface = size.width * size.height;
+				bestSize = size;
+			}
+		}
+		parameters.setPictureSize(bestSize.width, bestSize.height);
+		mCamera.setParameters(parameters);
 	}
 
 	private Camera.Size getOptimalPreviewSize(int width, int height) {
