@@ -6,5 +6,6 @@
     <item name="grid_selector_color" type="color">#FFF4A460</item>
     <item name="grid_selector_color_dark" type="color">#B07645</item>
     <item name="transparent" type="color">#00000000</item>
+    <item name="transparent_white" type="color">#AAFFFFFF</item>
 
 </resources>

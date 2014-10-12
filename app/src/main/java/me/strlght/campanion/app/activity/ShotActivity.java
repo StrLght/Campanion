@@ -7,15 +7,12 @@ import android.content.res.Configuration;
 import android.hardware.*;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ImageButton;
 import me.strlght.campanion.app.R;
 import me.strlght.campanion.app.callback.DefaultPictureCallback;
 import me.strlght.campanion.app.callback.PictureCallback;
 import me.strlght.campanion.app.callback.StabilizedPictureCallback;
 import me.strlght.campanion.app.view.CameraView;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by starlight on 9/22/14.
@@ -25,12 +22,13 @@ public class ShotActivity extends Activity implements SensorEventListener {
 	private static final String TAG = "ShotActivity";
 
 	private CameraView mCameraView;
-	private List<PictureCallback> mPictureCallbacks;
+	private PictureCallback[] mPictureCallbacks = {new StabilizedPictureCallback(), new DefaultPictureCallback()};
+	private int[] mPictureSwitchImages = {R.drawable.ic_action_crop, R.drawable.ic_action_picture};
 	private int mActiveCallbackNumber;
 
-	private Button mSwitchButton;
-	private Button mShutterButton;
-	private Button mStabilityButton;
+	private ImageButton mSwitchButton;
+	private ImageButton mShutterButton;
+	private ImageButton mStabilityButton;
 
 	private SensorManager mSensorManager;
 	private Sensor mAccelerometer;
@@ -47,27 +45,26 @@ public class ShotActivity extends Activity implements SensorEventListener {
 		setContentView(R.layout.ac_shot);
 
 		mCameraView = (CameraView) findViewById(R.id.camera_preview);
-		mSwitchButton = (Button) findViewById(R.id.switch_button);
-		mShutterButton = (Button) findViewById(R.id.shutter_button);
-		mStabilityButton = (Button) findViewById(R.id.stability_button);
+		mSwitchButton = (ImageButton) findViewById(R.id.switch_button);
+		mShutterButton = (ImageButton) findViewById(R.id.shutter_button);
+		mStabilityButton = (ImageButton) findViewById(R.id.stability_button);
 
-		mPictureCallbacks = new ArrayList<PictureCallback>();
-		mPictureCallbacks.add(new StabilizedPictureCallback());
-		mPictureCallbacks.add(new DefaultPictureCallback());
 		mActiveCallbackNumber = 0;
 
 		for (PictureCallback callback : mPictureCallbacks) {
 			callback.setContext(getBaseContext());
 		}
 
-		mCameraView.setJpegPictureCallback(mPictureCallbacks.get(0));
+		mCameraView.setJpegPictureCallback(mPictureCallbacks[mActiveCallbackNumber]);
+		mStabilityButton.setImageResource(mPictureSwitchImages[mActiveCallbackNumber]);
+
 
 		mShutterButton.setOnClickListener(new OnShutterListener());
 		mStabilityButton.setOnClickListener(new OnStabilizeListener());
 		mSwitchButton.setOnClickListener(new OnSwitchListener());
 		if (Camera.getNumberOfCameras() <= 1) {
 			mSwitchButton.setEnabled(false);
-			mSwitchButton.setVisibility(View.INVISIBLE);
+			mSwitchButton.setVisibility(View.GONE);
 		}
 
 		mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
@@ -135,6 +132,10 @@ public class ShotActivity extends Activity implements SensorEventListener {
 				mAzimuth = azimuth;
 				mPitch = pitch;
 				mRoll = roll;
+
+				float tempRoll = -mRoll;
+				mSwitchButton.setRotation(tempRoll);
+				mStabilityButton.setRotation(tempRoll);
 			}
 		}
 	}
@@ -189,8 +190,10 @@ public class ShotActivity extends Activity implements SensorEventListener {
 
 		@Override
 		public void onClick(View view) {
-			mActiveCallbackNumber = (mActiveCallbackNumber + 1) % mPictureCallbacks.size();
-			mCameraView.setJpegPictureCallback(mPictureCallbacks.get(mActiveCallbackNumber));
+			mActiveCallbackNumber = (mActiveCallbackNumber + 1) % mPictureCallbacks.length;
+			mCameraView.setJpegPictureCallback(mPictureCallbacks[mActiveCallbackNumber]);
+			mStabilityButton.setImageResource(mPictureSwitchImages[mActiveCallbackNumber]);
+			mStabilityButton.setBackground(getResources().getDrawable(R.drawable.selector_camera_button));
 		}
 
 	}
