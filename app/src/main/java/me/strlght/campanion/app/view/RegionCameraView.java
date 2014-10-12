@@ -64,7 +64,7 @@ public class RegionCameraView extends ImageView {
 			Bitmap region = Bitmap.createBitmap(length, length, Bitmap.Config.ARGB_8888);
 			region.eraseColor(Color.parseColor("#00000000"));
 			Canvas canvas = new Canvas(region);
-			canvas.drawColor(Color.parseColor("#cc000000"));
+			canvas.drawColor(Color.parseColor("#СС000000"));
 			if (size != null) {
 				int originalWidth = size.width;
 				int originalHeight = size.height;
