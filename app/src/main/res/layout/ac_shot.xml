@@ -12,6 +12,13 @@
         android:layout_height="match_parent"
         android:layout_gravity="center" />
 
+    <me.strlght.campanion.app.view.RegionCameraView
+        android:id="@+id/region_view"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_centerInParent="true"
+        android:scaleType="fitCenter" />
+
     <ImageButton
         android:id="@+id/switch_button"
         android:layout_width="wrap_content"

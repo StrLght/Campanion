@@ -13,6 +13,7 @@ import me.strlght.campanion.app.callback.DefaultPictureCallback;
 import me.strlght.campanion.app.callback.PictureCallback;
 import me.strlght.campanion.app.callback.StabilizedPictureCallback;
 import me.strlght.campanion.app.view.CameraView;
+import me.strlght.campanion.app.view.RegionCameraView;
 
 /**
  * Created by starlight on 9/22/14.
@@ -22,8 +23,10 @@ public class ShotActivity extends Activity implements SensorEventListener {
 	private static final String TAG = "ShotActivity";
 
 	private CameraView mCameraView;
+	private RegionCameraView mRegionCameraView;
 	private PictureCallback[] mPictureCallbacks = {new StabilizedPictureCallback(), new DefaultPictureCallback()};
 	private int[] mPictureSwitchImages = {R.drawable.ic_action_crop, R.drawable.ic_action_picture};
+	private boolean[] mRegionVisibility = {true, false};
 	private int mActiveCallbackNumber;
 
 	private ImageButton mSwitchButton;
@@ -45,6 +48,7 @@ public class ShotActivity extends Activity implements SensorEventListener {
 		setContentView(R.layout.ac_shot);
 
 		mCameraView = (CameraView) findViewById(R.id.camera_preview);
+		mRegionCameraView = (RegionCameraView) findViewById(R.id.region_view);
 		mSwitchButton = (ImageButton) findViewById(R.id.switch_button);
 		mShutterButton = (ImageButton) findViewById(R.id.shutter_button);
 		mStabilityButton = (ImageButton) findViewById(R.id.stability_button);
@@ -58,7 +62,6 @@ public class ShotActivity extends Activity implements SensorEventListener {
 		mCameraView.setJpegPictureCallback(mPictureCallbacks[mActiveCallbackNumber]);
 		mStabilityButton.setImageResource(mPictureSwitchImages[mActiveCallbackNumber]);
 
-
 		mShutterButton.setOnClickListener(new OnShutterListener());
 		mStabilityButton.setOnClickListener(new OnStabilizeListener());
 		mSwitchButton.setOnClickListener(new OnSwitchListener());
@@ -66,6 +69,15 @@ public class ShotActivity extends Activity implements SensorEventListener {
 			mSwitchButton.setEnabled(false);
 			mSwitchButton.setVisibility(View.GONE);
 		}
+
+		mCameraView.setOnPreviewSizeChangeListener(new CameraView.OnPreviewSizeChangeListener() {
+
+			@Override
+			public void onPreviewSizeChanged(Camera.Size size) {
+				mRegionCameraView.setSize(size);
+			}
+
+		});
 
 		mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 		mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -134,6 +146,7 @@ public class ShotActivity extends Activity implements SensorEventListener {
 				mRoll = roll;
 
 				float tempRoll = -mRoll;
+				mRegionCameraView.setRotation(tempRoll);
 				mSwitchButton.setRotation(tempRoll);
 				mStabilityButton.setRotation(tempRoll);
 			}
@@ -194,6 +207,11 @@ public class ShotActivity extends Activity implements SensorEventListener {
 			mCameraView.setJpegPictureCallback(mPictureCallbacks[mActiveCallbackNumber]);
 			mStabilityButton.setImageResource(mPictureSwitchImages[mActiveCallbackNumber]);
 			mStabilityButton.setBackground(getResources().getDrawable(R.drawable.selector_camera_button));
+			int visibility = View.INVISIBLE;
+			if (mRegionVisibility[mActiveCallbackNumber]) {
+				visibility = View.VISIBLE;
+			}
+			mRegionCameraView.setVisibility(visibility);
 		}
 
 	}

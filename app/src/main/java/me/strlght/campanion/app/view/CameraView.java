@@ -27,6 +27,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 	private Camera.PictureCallback mRawPictureCallback;
 	private Camera.PictureCallback mPostPictureCallback;
 	private Camera.PictureCallback mJpegPictureCallback;
+	private OnPreviewSizeChangeListener mOnPreviewSizeChangeListener;
 
 	private int mParentWidth = -1;
 	private int mParentHeight = -1;
@@ -81,6 +82,13 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 		setMeasuredDimension(mParentWidth, (int) (mParentWidth * ratio));
 	}
 
+	@Override
+	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+		super.onSizeChanged(w, h, oldw, oldh);
+
+		setPreviewSize(getOptimalPreviewSize(w, h));
+	}
+
 	private void init() {
 		getHolder().addCallback(this);
 	}
@@ -107,6 +115,18 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 
 	public Camera.Size getPreviewSize() {
 		return mPreviewSize;
+	}
+
+	private void setPreviewSize(Camera.Size previewSize) {
+		mPreviewSize = previewSize;
+		if (mOnPreviewSizeChangeListener != null) {
+			mOnPreviewSizeChangeListener.onPreviewSizeChanged(mPreviewSize);
+		}
+	}
+
+	public void setOnPreviewSizeChangeListener(OnPreviewSizeChangeListener onPreviewSizeChangeListener) {
+		mOnPreviewSizeChangeListener = onPreviewSizeChangeListener;
+		setPreviewSize(mPreviewSize);
 	}
 
 	public void takePicture() {
@@ -184,7 +204,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 
 	private void updatePreviewSize() {
 		Camera.Parameters parameters = mCamera.getParameters();
-		mPreviewSize = getOptimalPreviewSize(mParentWidth, mParentHeight);
+		setPreviewSize(getOptimalPreviewSize(mParentWidth, mParentHeight));
 		if (mPreviewSize != null) {
 			parameters.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
 		}
@@ -324,6 +344,10 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 	@Override
 	public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
 		stopPreview();
+	}
+
+	public interface OnPreviewSizeChangeListener {
+		public void onPreviewSizeChanged(Camera.Size size);
 	}
 
 }
