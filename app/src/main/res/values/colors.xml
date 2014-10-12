@@ -3,9 +3,12 @@
 
     <item name="black" type="color">#FF000000</item>
     <item name="white" type="color">#FFFFFFFF</item>
+    <item name="grey" type="color">#FFCCCCCC</item>
     <item name="grid_selector_color" type="color">#FFF4A460</item>
     <item name="grid_selector_color_dark" type="color">#B07645</item>
     <item name="transparent" type="color">#00000000</item>
     <item name="transparent_white" type="color">#AAFFFFFF</item>
+    <item name="shot_button_start" type="color">#FFCC0000</item>
+    <item name="shot_button_end" type="color">#FF990000</item>
 
 </resources>

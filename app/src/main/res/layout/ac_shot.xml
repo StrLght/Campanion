@@ -21,8 +21,8 @@
 
     <ImageButton
         android:id="@+id/switch_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="@dimen/shot_button_size"
+        android:layout_height="@dimen/shot_button_size"
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
         android:background="@drawable/selector_camera_button"
@@ -31,16 +31,16 @@
 
     <ImageButton
         android:id="@+id/shutter_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="@dimen/shutter_button_size"
+        android:layout_height="@dimen/shutter_button_size"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:text="@string/shutter_button_text" />
+        android:background="@drawable/selector_shutter" />
 
     <ImageButton
         android:id="@+id/stability_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="@dimen/shot_button_size"
+        android:layout_height="@dimen/shot_button_size"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
         android:background="@drawable/selector_camera_button"
