@@ -1,6 +1,8 @@
 package me.strlght.campanion.app.activity;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -16,6 +18,9 @@ import me.strlght.campanion.app.util.ShareUtils;
 
 import java.io.File;
 
+/**
+ * Created by starlight on 10/9/14.
+ */
 public class PreviewActivity extends FragmentActivity {
 
 	public static final String EXTRA_IMAGE_POSITION = "image_position";
@@ -113,11 +118,24 @@ public class PreviewActivity extends FragmentActivity {
 
 		@Override
 		public boolean onMenuItemClick(MenuItem menuItem) {
-			ImageDirectoryPagerAdapter adapter = (ImageDirectoryPagerAdapter) mPreviewPager.getAdapter();
-			File selection = adapter.getImage(mPreviewPager.getCurrentItem());
-			if (!FileUtils.delete(selection)) {
-				Toast.makeText(getBaseContext(), R.string.delete_fail, Toast.LENGTH_SHORT).show();
-			}
+			AlertDialog.Builder builder = new AlertDialog.Builder(PreviewActivity.this);
+			builder.setMessage(R.string.delete_question)
+					.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+
+						@Override
+						public void onClick(DialogInterface dialogInterface, int i) {
+							ImageDirectoryPagerAdapter adapter = (ImageDirectoryPagerAdapter) mPreviewPager.getAdapter();
+							File selection = adapter.getImage(mPreviewPager.getCurrentItem());
+							if (!FileUtils.delete(selection)) {
+								Toast.makeText(getBaseContext(), R.string.delete_fail, Toast.LENGTH_SHORT).show();
+							}
+						}
+
+					})
+					.setNegativeButton(android.R.string.no, null)
+					.create()
+					.show();
+
 			return true;
 		}
 

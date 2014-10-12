@@ -1,7 +1,9 @@
 package me.strlght.campanion.app.activity;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -220,15 +222,30 @@ public class GalleryActivity extends Activity {
 
 		@Override
 		public boolean onMenuItemClick(MenuItem menuItem) {
-			ImageDirectoryAdapter adapter = (ImageDirectoryAdapter) mGridView.getAdapter();
-			List<File> selection = adapter.getSelected();
-			for (File image : selection) {
-				if (!FileUtils.delete(image)) {
-					Toast.makeText(getBaseContext(), R.string.delete_fail, Toast.LENGTH_SHORT).show();
-				}
-			}
-			setMenuActionsEnabled(false);
-			adapter.notifyDataSetChanged();
+			AlertDialog.Builder builder = new AlertDialog.Builder(GalleryActivity.this);
+			builder.setMessage(R.string.delete_question)
+					.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+
+						@Override
+						public void onClick(DialogInterface dialogInterface, int i) {
+							ImageDirectoryAdapter adapter = (ImageDirectoryAdapter) mGridView.getAdapter();
+							List<File> selection = adapter.getSelected();
+							for (File image : selection) {
+								if (!FileUtils.delete(image)) {
+									Toast.makeText(getBaseContext(),
+											R.string.delete_fail, Toast.LENGTH_SHORT)
+											.show();
+								}
+							}
+							setMenuActionsEnabled(false);
+							adapter.notifyDataSetChanged();
+						}
+
+					})
+					.setNegativeButton(android.R.string.no, null)
+					.create()
+					.show();
+
 			return true;
 		}
 

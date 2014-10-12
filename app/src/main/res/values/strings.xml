@@ -18,5 +18,6 @@
     <string name="delete_button_text">Delete</string>
     <string name="deselect_button_text">Deselect</string>
     <string name="title_activity_edit">Edit</string>
+    <string name="delete_question">Are you sure you want to delete selected files?</string>
 
 </resources>
