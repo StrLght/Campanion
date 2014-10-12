@@ -87,8 +87,8 @@ public class ShotActivity extends Activity implements SensorEventListener {
 
 		mCameraView.openCamera();
 
-		mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
-		mSensorManager.registerListener(this, mMagnetometer, SensorManager.SENSOR_DELAY_NORMAL);
+		mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_UI);
+		mSensorManager.registerListener(this, mMagnetometer, SensorManager.SENSOR_DELAY_UI);
 	}
 
 	@Override
