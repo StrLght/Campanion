@@ -11,7 +11,6 @@
     <string name="title_activity_preview">Preview</string>
     <string name="import_fail">Import failed</string>
     <string name="delete_fail">Delete failed</string>
-    <string name="loading">Loading…</string>
     <string name="loading_fail">Error</string>
     <string name="edit_button_text">Edit</string>
     <string name="share_button_text">Share</string>

@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
@@ -25,7 +26,8 @@ public class PreviewFragment extends Fragment {
 
 	private File mImage;
 	private ImageViewTouch mImageView;
-	private TextView mTextView;
+	private TextView mErrorText;
+	private ProgressBar mProgressBar;
 	private ImageViewTarget mTarget;
 	private boolean mIsVisible = false;
 
@@ -52,8 +54,10 @@ public class PreviewFragment extends Fragment {
 		mImageView = (ImageViewTouch) v.findViewById(R.id.image_preview);
 		mImageView.setDisplayType(ImageViewTouch.DisplayType.FIT_TO_SCREEN);
 
-		mTextView = (TextView) v.findViewById(R.id.loading_text);
-		mTextView.setVisibility(View.VISIBLE);
+		mProgressBar = (ProgressBar) v.findViewById(R.id.loading_spinner);
+		mProgressBar.setVisibility(View.VISIBLE);
+
+		mErrorText = (TextView) v.findViewById(R.id.error_text);
 
 		return v;
 	}
@@ -97,12 +101,13 @@ public class PreviewFragment extends Fragment {
 		@Override
 		public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
 			mImageView.setImageBitmap(bitmap);
-			mTextView.setVisibility(View.GONE);
+			mProgressBar.setVisibility(View.GONE);
 		}
 
 		@Override
 		public void onBitmapFailed(Drawable errorDrawable) {
-			mTextView.setText(R.string.loading_fail);
+			mErrorText.setVisibility(View.VISIBLE);
+			mProgressBar.setVisibility(View.GONE);
 		}
 
 		@Override
