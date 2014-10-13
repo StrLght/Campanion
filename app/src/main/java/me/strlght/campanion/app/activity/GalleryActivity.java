@@ -81,10 +81,12 @@ public class GalleryActivity extends Activity {
 	}
 
 	private void setMenuActionsEnabled(boolean visibility) {
-		setMenuItemEnabled(mMenu.findItem(R.id.action_edit), visibility);
-		setMenuItemEnabled(mMenu.findItem(R.id.action_share), visibility);
-		setMenuItemEnabled(mMenu.findItem(R.id.action_delete), visibility);
-		setMenuItemEnabled(mMenu.findItem(R.id.action_deselect), visibility);
+		if (mMenu != null) {
+			setMenuItemEnabled(mMenu.findItem(R.id.action_edit), visibility);
+			setMenuItemEnabled(mMenu.findItem(R.id.action_share), visibility);
+			setMenuItemEnabled(mMenu.findItem(R.id.action_delete), visibility);
+			setMenuItemEnabled(mMenu.findItem(R.id.action_deselect), visibility);
+		}
 	}
 
 	private void setMenuItemEnabled(MenuItem item, boolean visibility) {
