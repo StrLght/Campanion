@@ -118,9 +118,13 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 	}
 
 	private void setPreviewSize(Camera.Size previewSize) {
+		if (mCamera == null) {
+			return;
+		}
 		mPreviewSize = previewSize;
 		if (mOnPreviewSizeChangeListener != null) {
-			mOnPreviewSizeChangeListener.onPreviewSizeChanged(mPreviewSize);
+			mOnPreviewSizeChangeListener.onPreviewSizeChanged(mPreviewSize,
+					mCamera.getParameters().getPictureSize());
 		}
 	}
 
@@ -199,12 +203,15 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 			parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
 		}
 		mCamera.setParameters(parameters);
-		updatePreviewSize();
 		setBestPictureQuality();
+		updatePreviewSize();
 		startPreview(getHolder());
 	}
 
 	private void updatePreviewSize() {
+		if (mCamera == null) {
+			return;
+		}
 		Camera.Parameters parameters = mCamera.getParameters();
 		setPreviewSize(getOptimalPreviewSize(mParentWidth, mParentHeight));
 		if (mPreviewSize != null) {
@@ -363,7 +370,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 	}
 
 	public interface OnPreviewSizeChangeListener {
-		public void onPreviewSizeChanged(Camera.Size size);
+		public void onPreviewSizeChanged(Camera.Size previewSize, Camera.Size actualSize);
 	}
 
 }

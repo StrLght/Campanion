@@ -12,7 +12,8 @@ import android.widget.ImageView;
 public class RegionCameraView extends ImageView {
 
 	private Paint mPaint;
-	private Camera.Size mCameraSize;
+	private Camera.Size mPreviewSize;
+	private Camera.Size mActualSize;
 
 	public RegionCameraView(Context context) {
 		super(context);
@@ -49,28 +50,27 @@ public class RegionCameraView extends ImageView {
 	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
 		super.onSizeChanged(w, h, oldw, oldh);
 
-		if (mCameraSize != null) {
-			setSize(mCameraSize);
+		if (mPreviewSize != null && mActualSize != null) {
+			setSize(mPreviewSize, mActualSize);
 		}
 	}
 
-	public void setSize(Camera.Size size) {
+	public void setSize(Camera.Size previewSize, Camera.Size actualSize) {
 		requestLayout();
 		final int wph = getWidth() + getHeight();
 		final int length = Math.min(2048, wph);
-		mCameraSize = size;
+		mPreviewSize = previewSize;
+		mActualSize = actualSize;
 
-		if (length > 0) {
+		if (length > 0 && wph != 0) {
 			Bitmap region = Bitmap.createBitmap(length, length, Bitmap.Config.ARGB_8888);
 			region.eraseColor(Color.parseColor("#00000000"));
 			Canvas canvas = new Canvas(region);
 			canvas.drawColor(Color.parseColor("#CC000000"));
-			if (size != null) {
-				int originalWidth = size.width;
-				int originalHeight = size.height;
-				float k = (float) originalWidth / originalHeight;
-				int scaledHeight = (int) ((float) originalHeight / Math.sqrt(1 + Math.pow(k, 2)));
-				int scaledWidth = (int) (scaledHeight * k);
+			if (previewSize != null) {
+				float k = (float) mActualSize.width / mActualSize.height;
+				int scaledWidth = (int) ((float) previewSize.width / Math.sqrt(1 + Math.pow(k, 2)));
+				int scaledHeight = (int) ((float) scaledWidth / k);
 				int center = length / 2;
 				canvas.drawRect(center - scaledWidth / 2, center - scaledHeight / 2, center + scaledWidth / 2, center + scaledHeight / 2, mPaint);
 			}

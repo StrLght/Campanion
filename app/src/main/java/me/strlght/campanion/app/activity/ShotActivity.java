@@ -70,15 +70,6 @@ public class ShotActivity extends Activity implements SensorEventListener {
 			mSwitchButton.setVisibility(View.GONE);
 		}
 
-		mCameraView.setOnPreviewSizeChangeListener(new CameraView.OnPreviewSizeChangeListener() {
-
-			@Override
-			public void onPreviewSizeChanged(Camera.Size size) {
-				mRegionCameraView.setSize(size);
-			}
-
-		});
-
 		mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 		mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 		mMagnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
@@ -98,6 +89,15 @@ public class ShotActivity extends Activity implements SensorEventListener {
 		}
 
 		mCameraView.openCamera();
+		mCameraView.setOnPreviewSizeChangeListener(new CameraView.OnPreviewSizeChangeListener() {
+
+			@Override
+			public void onPreviewSizeChanged(Camera.Size previewSize, Camera.Size actualSize) {
+				mRegionCameraView.setSize(previewSize, actualSize);
+			}
+
+		});
+
 
 		mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_UI);
 		mSensorManager.registerListener(this, mMagnetometer, SensorManager.SENSOR_DELAY_UI);
