@@ -18,6 +18,7 @@ import android.widget.Toast;
 import me.strlght.campanion.app.R;
 import me.strlght.campanion.app.adapter.ImageDirectoryAdapter;
 import me.strlght.campanion.app.listener.OnEditButtonClickListener;
+import me.strlght.campanion.app.util.AviaryUtils;
 import me.strlght.campanion.app.util.FileUtils;
 import me.strlght.campanion.app.util.ShareUtils;
 
@@ -99,20 +100,23 @@ public class GalleryActivity extends Activity {
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 
-		Context context = getBaseContext();
-		if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-			try {
-				InputStream stream = getContentResolver().openInputStream(data.getData());
-				Bitmap bitmap = BitmapFactory.decodeStream(stream);
-				stream.close();
-				FileUtils.save(context, bitmap);
-				return;
-			} catch (Exception e) {
-				e.printStackTrace();
+		Context context = getApplicationContext();
+		if (requestCode == REQUEST_CODE) {
+			if (resultCode == Activity.RESULT_OK) {
+				try {
+					InputStream stream = getContentResolver().openInputStream(data.getData());
+					Bitmap bitmap = BitmapFactory.decodeStream(stream);
+					stream.close();
+					FileUtils.save(context, bitmap);
+					return;
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
+			Toast.makeText(context, R.string.import_fail, Toast.LENGTH_SHORT).show();
+		} else if (requestCode == OnEditButtonClickListener.AVIARY_ACTIVITY && resultCode == Activity.RESULT_OK) {
+			AviaryUtils.saveUriIfChanged(context, data);
 		}
-
-		Toast.makeText(context, R.string.import_fail, Toast.LENGTH_SHORT).show();
 	}
 
 	@Override

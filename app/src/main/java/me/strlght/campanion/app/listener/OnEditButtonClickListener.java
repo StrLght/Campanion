@@ -29,7 +29,7 @@ public class OnEditButtonClickListener implements MenuItem.OnMenuItemClickListen
 			File image = mEditImageGetter.getImage();
 			Activity activity = mEditImageGetter.getActivity();
 			Intent intent = new Intent(activity, FeatherActivity.class);
-			intent.setData(Uri.parse("file://" + image.getAbsolutePath()));
+			intent.setData(Uri.parse(image.getAbsolutePath()));
 			intent.putExtra(Constants.EXTRA_IN_API_KEY_SECRET, BuildConfig.AVIARY_SECRET);
 			activity.startActivityForResult(intent, AVIARY_ACTIVITY);
 			return true;

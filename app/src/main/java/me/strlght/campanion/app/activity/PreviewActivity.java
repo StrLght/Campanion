@@ -2,6 +2,7 @@ package me.strlght.campanion.app.activity;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,6 +14,7 @@ import android.widget.Toast;
 import me.strlght.campanion.app.R;
 import me.strlght.campanion.app.adapter.ImageDirectoryPagerAdapter;
 import me.strlght.campanion.app.listener.OnEditButtonClickListener;
+import me.strlght.campanion.app.util.AviaryUtils;
 import me.strlght.campanion.app.util.FileUtils;
 import me.strlght.campanion.app.util.ShareUtils;
 
@@ -100,6 +102,16 @@ public class PreviewActivity extends FragmentActivity {
 		menu.findItem(R.id.action_delete).setOnMenuItemClickListener(new OnDeleteButtonClickListener());
 
 		return true;
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+
+		Context context = getApplicationContext();
+		if (requestCode == OnEditButtonClickListener.AVIARY_ACTIVITY && resultCode == Activity.RESULT_OK) {
+			AviaryUtils.saveUriIfChanged(context, data);
+		}
 	}
 
 	private class OnShareButtonClickListener implements MenuItem.OnMenuItemClickListener {
