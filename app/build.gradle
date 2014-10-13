@@ -32,7 +32,9 @@ android {
 
 dependencies {
 	compile "com.android.support:support-v4:20.0.+"
+	compile 'ch.acra:acra:4.5.0'
 	compile 'com.squareup.picasso:picasso:2.3.4'
+	compile 'com.edmodo:cropper:1.0.1'
 	compile 'it.sephiroth.android.library.imagezoom:imagezoom:1.0.5'
 	compile fileTree(dir: 'libs', include: ['*.jar'])
 }
