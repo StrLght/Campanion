@@ -74,4 +74,14 @@ public class FileUtils {
 		}
 	}
 
+	public static class Comparator implements java.util.Comparator<File> {
+
+		@Override
+		public int compare(File file1, File file2) {
+			return Long.valueOf(file2.lastModified())
+					.compareTo(file1.lastModified());
+		}
+
+	}
+
 }

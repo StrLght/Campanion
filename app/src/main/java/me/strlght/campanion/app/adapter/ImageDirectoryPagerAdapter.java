@@ -8,6 +8,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import me.strlght.campanion.app.fragment.PreviewFragment;
 import me.strlght.campanion.app.observer.ImageObserver;
+import me.strlght.campanion.app.util.FileUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -42,7 +43,7 @@ public class ImageDirectoryPagerAdapter extends FragmentStatePagerAdapter {
 				for (String file : files) {
 					mImages.add(new File(mPath + File.separator + file));
 				}
-				Collections.reverse(mImages);
+				Collections.sort(mImages, new FileUtils.Comparator());
 
 				mHandler.post(new Runnable() {
 

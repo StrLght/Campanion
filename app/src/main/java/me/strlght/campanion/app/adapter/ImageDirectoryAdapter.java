@@ -13,6 +13,7 @@ import android.widget.ImageView;
 import com.squareup.picasso.Picasso;
 import me.strlght.campanion.app.R;
 import me.strlght.campanion.app.observer.ImageObserver;
+import me.strlght.campanion.app.util.FileUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -51,7 +52,7 @@ public class ImageDirectoryAdapter extends BaseAdapter {
 				for (String file : files) {
 					mImages.add(new File(mPath + File.separator + file));
 				}
-				Collections.reverse(mImages);
+				Collections.sort(mImages, new FileUtils.Comparator());
 
 				clearSelection();
 			}
