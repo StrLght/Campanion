@@ -1,13 +1,10 @@
 package me.strlght.campanion.app.observer;
 
 import android.os.FileObserver;
-import android.os.Handler;
-import android.os.Looper;
 import android.webkit.MimeTypeMap;
 
 import java.io.File;
 import java.io.FilenameFilter;
-import java.util.Collections;
 
 /**
  * Created by starlight on 10/10/14.
@@ -15,11 +12,6 @@ import java.util.Collections;
 public class ImageObserver extends FileObserver {
 
 	private String mPath;
-
-	public void setCallback(ImageObserverCallback callback) {
-		mCallback = callback;
-	}
-
 	private ImageObserverCallback mCallback;
 
 	public ImageObserver(String path) {
@@ -30,6 +22,10 @@ public class ImageObserver extends FileObserver {
 	public ImageObserver(String path, int flags) {
 		super(path, flags);
 		mPath = path;
+	}
+
+	public void setCallback(ImageObserverCallback callback) {
+		mCallback = callback;
 	}
 
 	@Override

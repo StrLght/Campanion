@@ -268,15 +268,13 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 
 	private void setBestPictureQuality() {
 		int surface = -1;
-		Camera.Size bestSize = null;
 		Camera.Parameters parameters = mCamera.getParameters();
 		for (Camera.Size size : parameters.getSupportedPictureSizes()) {
 			if (size.width * size.height >= surface) {
 				surface = size.width * size.height;
-				bestSize = size;
+				parameters.setPictureSize(size.width, size.height);
 			}
 		}
-		parameters.setPictureSize(bestSize.width, bestSize.height);
 		mCamera.setParameters(parameters);
 	}
 

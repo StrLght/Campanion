@@ -3,7 +3,7 @@ buildscript {
 		mavenCentral()
 	}
 	dependencies {
-		classpath 'com.android.tools.build:gradle:0.12.2'
+		classpath 'com.android.tools.build:gradle:0.13.0'
 	}
 }
 apply plugin: 'com.android.application'
@@ -44,7 +44,7 @@ android {
 }
 
 dependencies {
-	compile "com.android.support:support-v4:20.0.+"
+	compile "com.android.support:support-v4:20.0.0"
 	compile 'ch.acra:acra:4.5.0'
 	compile 'com.squareup.picasso:picasso:2.3.4'
 	compile('com.aviary.android.feather.sdk:aviary-sdk:3.4.3.351') {

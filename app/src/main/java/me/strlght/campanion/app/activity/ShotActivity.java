@@ -38,7 +38,6 @@ public class ShotActivity extends Activity implements SensorEventListener {
 	private Sensor mMagnetometer;
 	private float[] mGravity;
 	private float[] mGeomagnetic;
-	private float mAzimuth;
 	private float mPitch;
 	private float mRoll;
 
@@ -136,11 +135,9 @@ public class ShotActivity extends Activity implements SensorEventListener {
 				SensorManager.remapCoordinateSystem(R, SensorManager.AXIS_X, SensorManager.AXIS_Z, newR);
 				SensorManager.getOrientation(newR, orientation);
 
-				float azimuth = (float) Math.toDegrees(orientation[0]);
 				float pitch = (float) Math.toDegrees(orientation[1]);
 				float roll = (float) Math.toDegrees(orientation[2]);
 
-				mAzimuth = azimuth;
 				mPitch = pitch;
 				mRoll = roll;
 

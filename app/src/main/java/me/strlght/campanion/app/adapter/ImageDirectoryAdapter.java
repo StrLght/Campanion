@@ -41,8 +41,7 @@ public class ImageDirectoryAdapter extends BaseAdapter {
 		mImages = new ArrayList<File>();
 
 		int flags = FileObserver.CREATE | FileObserver.DELETE | FileObserver.DELETE_SELF
-				| FileObserver.MODIFY | FileObserver.MOVE_SELF | FileObserver.MOVED_FROM
-				| FileObserver.MOVED_FROM;
+				| FileObserver.MODIFY | FileObserver.MOVE_SELF | FileObserver.MOVED_FROM;
 		mObserver = new ImageObserver(path, flags);
 		mObserver.setCallback(new ImageObserver.ImageObserverCallback() {
 
