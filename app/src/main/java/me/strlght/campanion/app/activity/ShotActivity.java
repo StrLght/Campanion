@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import me.strlght.campanion.app.R;
 import me.strlght.campanion.app.callback.DefaultPictureCallback;
 import me.strlght.campanion.app.callback.PictureCallback;
@@ -41,7 +42,6 @@ public class ShotActivity extends Activity implements SensorEventListener {
 	private boolean mIsUsingGravity;
 	private float[] mGravity;
 	private float[] mGeomagnetic;
-	private float mPitch;
 	private float mRoll;
 
 	@Override
@@ -95,7 +95,8 @@ public class ShotActivity extends Activity implements SensorEventListener {
 		super.onResume();
 
 		View decorView = getWindow().getDecorView();
-		int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
+		int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+				| View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
 		decorView.setSystemUiVisibility(uiOptions);
 
 		ActionBar actionBar = getActionBar();
@@ -150,11 +151,31 @@ public class ShotActivity extends Activity implements SensorEventListener {
 				SensorManager.remapCoordinateSystem(R, SensorManager.AXIS_X, SensorManager.AXIS_Z, newR);
 				SensorManager.getOrientation(newR, orientation);
 
-				float pitch = (float) Math.toDegrees(orientation[1]);
-				float roll = (float) Math.toDegrees(orientation[2]);
+				mRoll = (float) Math.toDegrees(orientation[2]);
 
-				mPitch = pitch;
-				mRoll = roll;
+				RelativeLayout.LayoutParams switchParams =
+						(RelativeLayout.LayoutParams) mSwitchButton.getLayoutParams();
+				RelativeLayout.LayoutParams shutterParams =
+						(RelativeLayout.LayoutParams) mShutterButton.getLayoutParams();
+				RelativeLayout.LayoutParams stabilityParams =
+						(RelativeLayout.LayoutParams) mStabilityButton.getLayoutParams();
+				int rule;
+				if (shutterParams.getRules()[RelativeLayout.ALIGN_PARENT_BOTTOM] != 0) {
+					rule = RelativeLayout.ALIGN_PARENT_BOTTOM;
+				} else {
+					rule = RelativeLayout.ALIGN_PARENT_TOP;
+				}
+				if (mRoll > -45 && mRoll < 45) {
+					rule = RelativeLayout.ALIGN_PARENT_BOTTOM;
+				} else if (mRoll < -135 || mRoll > 135) {
+					rule = RelativeLayout.ALIGN_PARENT_TOP;
+				}
+				switchParams = clearParamsAndAddRule(switchParams, rule);
+				shutterParams = clearParamsAndAddRule(shutterParams, rule);
+				stabilityParams = clearParamsAndAddRule(stabilityParams, rule);
+				mSwitchButton.setLayoutParams(switchParams);
+				mShutterButton.setLayoutParams(shutterParams);
+				mStabilityButton.setLayoutParams(stabilityParams);
 
 				float tempRoll = -mRoll;
 				mRegionCameraView.setRotation(tempRoll);
@@ -169,6 +190,13 @@ public class ShotActivity extends Activity implements SensorEventListener {
 
 	}
 
+	private RelativeLayout.LayoutParams clearParamsAndAddRule(RelativeLayout.LayoutParams params, int rule) {
+		params.removeRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+		params.removeRule(RelativeLayout.ALIGN_PARENT_TOP);
+		params.addRule(rule);
+		return params;
+	}
+
 	private class OnShutterListener implements View.OnClickListener {
 
 		private void setButtonsEnabled(boolean enabled) {
@@ -181,7 +209,6 @@ public class ShotActivity extends Activity implements SensorEventListener {
 		public void onClick(View view) {
 			int facing = mCameraView.getCameraFacing();
 			for (PictureCallback callback : mPictureCallbacks) {
-				callback.setPitch(mPitch);
 				callback.setRoll(mRoll);
 				callback.setFacing(facing);
 			}

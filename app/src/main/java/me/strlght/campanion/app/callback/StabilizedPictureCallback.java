@@ -16,19 +16,17 @@ public class StabilizedPictureCallback extends PictureCallback {
 
 	@Override
 	public void onPictureTaken(byte[] bytes, Camera camera) {
-		new SaveImageTask(getPitch(), getRoll(), getFacing()).execute(bytes);
+		new SaveImageTask(getRoll(), getFacing()).execute(bytes);
 	}
 
 	private class SaveImageTask extends AsyncTask<byte[], Void, Void> {
 
-		private final float mPitch;
 		private final float mRoll;
 		private final int mFacing;
 
-		SaveImageTask(float pitch, float roll, int facing) {
+		SaveImageTask(float roll, int facing) {
 			super();
 
-			mPitch = pitch;
 			mRoll = roll;
 			mFacing = facing;
 		}
@@ -48,11 +46,6 @@ public class StabilizedPictureCallback extends PictureCallback {
 			}
 			int scaledHeight = (int) ((float) originalHeight / Math.sqrt(1 + Math.pow(k, 2)));
 			int scaledWidth = (int) (scaledHeight * k);
-
-			if (mFacing == Camera.CameraInfo.CAMERA_FACING_FRONT &&
-					((mPitch < -45 && mPitch > -135) || (mPitch > 45 && mPitch < 135))) {
-				rotation += 180.0f;
-			}
 
 			Matrix transformation = new Matrix();
 			transformation.setRotate(rotation);

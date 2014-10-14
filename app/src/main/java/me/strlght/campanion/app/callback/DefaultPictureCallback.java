@@ -16,19 +16,17 @@ public class DefaultPictureCallback extends PictureCallback {
 
 	@Override
 	public void onPictureTaken(byte[] bytes, Camera camera) {
-		new SaveImageTask(getPitch(), getRoll(), getFacing()).execute(bytes);
+		new SaveImageTask(getRoll(), getFacing()).execute(bytes);
 	}
 
 	private class SaveImageTask extends AsyncTask<byte[], Void, Void> {
 
-		private final float mPitch;
 		private final float mRoll;
 		private final int mFacing;
 
-		SaveImageTask(float pitch, float roll, int facing) {
+		SaveImageTask(float roll, int facing) {
 			super();
 
-			mPitch = pitch;
 			mRoll = roll;
 			mFacing = facing;
 		}
@@ -40,15 +38,15 @@ public class DefaultPictureCallback extends PictureCallback {
 			int origheight = img.getHeight();
 
 			int rotation = 90;
-			if (mPitch > 45 && mPitch < 135) {
+			if (mRoll > 135 || mRoll < -135) {
 				rotation += 180;
 			} else if (mRoll > 45) {
 				rotation += 90;
 			} else if (mRoll < -45) {
 				rotation += 270;
 			}
-
-			if (mFacing == Camera.CameraInfo.CAMERA_FACING_FRONT && (rotation == 270 || rotation == 90)) {
+			if (mFacing == Camera.CameraInfo.CAMERA_FACING_FRONT
+					&& (rotation == 90 || rotation == 270)) {
 				rotation += 180;
 			}
 

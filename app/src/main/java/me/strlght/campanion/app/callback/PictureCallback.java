@@ -9,7 +9,6 @@ import android.hardware.Camera;
 public abstract class PictureCallback implements Camera.PictureCallback {
 
 	private Context mContext;
-	private float mPitch;
 	private float mRoll;
 	private int mFacing;
 
@@ -19,14 +18,6 @@ public abstract class PictureCallback implements Camera.PictureCallback {
 
 	public void setContext(Context context) {
 		mContext = context;
-	}
-
-	public float getPitch() {
-		return mPitch;
-	}
-
-	public void setPitch(float pitch) {
-		mPitch = pitch;
 	}
 
 	public float getRoll() {
