@@ -57,8 +57,7 @@ public class ImageDirectoryAdapter extends BaseAdapter {
 			}
 
 		});
-		mObserver.onEvent(0, null);
-		mObserver.startWatching();
+		startWatching();
 	}
 
 	@Override
@@ -74,6 +73,7 @@ public class ImageDirectoryAdapter extends BaseAdapter {
 	}
 
 	public void startWatching() {
+		mObserver.onEvent(0, null);
 		mObserver.startWatching();
 	}
 

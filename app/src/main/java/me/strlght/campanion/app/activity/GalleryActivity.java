@@ -108,12 +108,10 @@ public class GalleryActivity extends Activity {
 					Bitmap bitmap = BitmapFactory.decodeStream(stream);
 					stream.close();
 					FileUtils.save(context, bitmap);
-					return;
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
-			Toast.makeText(context, R.string.import_fail, Toast.LENGTH_SHORT).show();
 		} else if (requestCode == OnEditButtonClickListener.AVIARY_ACTIVITY && resultCode == Activity.RESULT_OK) {
 			AviaryUtils.saveUriIfChanged(context, data);
 		}
@@ -236,6 +234,7 @@ public class GalleryActivity extends Activity {
 						public void onClick(DialogInterface dialogInterface, int i) {
 							ImageDirectoryAdapter adapter = (ImageDirectoryAdapter) mGridView.getAdapter();
 							List<File> selection = adapter.getSelected();
+							adapter.stopWatching();
 							for (File image : selection) {
 								if (!FileUtils.delete(image)) {
 									Toast.makeText(getBaseContext(),
@@ -244,7 +243,7 @@ public class GalleryActivity extends Activity {
 								}
 							}
 							setMenuActionsEnabled(false);
-							adapter.notifyDataSetChanged();
+							adapter.startWatching();
 						}
 
 					})
