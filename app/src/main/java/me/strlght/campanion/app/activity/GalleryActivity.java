@@ -31,7 +31,7 @@ import java.util.List;
  */
 public class GalleryActivity extends Activity {
 
-	private final static long sDoubleTapInterval = 400;
+	private static final long DOUBLE_TAP_INTERVAL = 400;
 	private static final int REQUEST_CODE = 1;
 	private final String mDirectory = FileUtils.getSaveDirectory().getAbsolutePath();
 	private GridView mGridView;
@@ -163,7 +163,7 @@ public class GalleryActivity extends Activity {
 				boolean isOneOrLessSelected = (selected.size() <= 1);
 				boolean isSelected = adapter.isSelected(i);
 				if (i == mLastSelectedElement
-						&& (time - mLastSelectedTime) <= sDoubleTapInterval
+						&& (time - mLastSelectedTime) <= DOUBLE_TAP_INTERVAL
 						&& isOneOrLessSelected
 						&& isSelected) {
 					if (selected.size() == 1) {
