@@ -13,6 +13,7 @@ public class ImageObserver extends FileObserver {
 
 	private String mPath;
 	private ImageObserverCallback mCallback;
+	private Boolean mShouldWait = false;
 
 	public ImageObserver(String path) {
 		super(path);
@@ -32,6 +33,15 @@ public class ImageObserver extends FileObserver {
 	public void onEvent(final int i, final String s) {
 		if ((i & FileObserver.MOVE_SELF) != 0) {
 			mPath = s;
+		}
+		if ((i & FileObserver.MODIFY) != 0) {
+			mShouldWait = true;
+		}
+		if ((i & FileObserver.CLOSE_WRITE) != 0) {
+			mShouldWait = false;
+		}
+		if (mShouldWait) {
+			return;
 		}
 		String[] strings = new File(mPath).list(new FilenameFilter() {
 
