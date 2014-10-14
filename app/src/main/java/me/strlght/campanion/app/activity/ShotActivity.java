@@ -7,6 +7,7 @@ import android.content.res.Configuration;
 import android.hardware.*;
 import android.os.Bundle;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ImageButton;
 import me.strlght.campanion.app.R;
 import me.strlght.campanion.app.callback.DefaultPictureCallback;
@@ -25,7 +26,7 @@ public class ShotActivity extends Activity implements SensorEventListener {
 	private CameraView mCameraView;
 	private RegionCameraView mRegionCameraView;
 	private PictureCallback[] mPictureCallbacks = {new StabilizedPictureCallback(), new DefaultPictureCallback()};
-	private int[] mPictureSwitchImages = {R.drawable.ic_action_crop, R.drawable.ic_action_picture};
+	private int[] mPictureSwitchImages = {R.drawable.ic_action_picture, R.drawable.ic_action_crop};
 	private boolean[] mRegionVisibility = {true, false};
 	private int mActiveCallbackNumber;
 
@@ -34,8 +35,10 @@ public class ShotActivity extends Activity implements SensorEventListener {
 	private ImageButton mStabilityButton;
 
 	private SensorManager mSensorManager;
+	private Sensor mGravitySensor;
 	private Sensor mAccelerometer;
 	private Sensor mMagnetometer;
+	private boolean mIsUsingGravity;
 	private float[] mGravity;
 	private float[] mGeomagnetic;
 	private float mPitch;
@@ -78,8 +81,13 @@ public class ShotActivity extends Activity implements SensorEventListener {
 		}
 
 		mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+		mGravitySensor = mSensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY);
 		mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 		mMagnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+
+		WindowManager.LayoutParams lp = getWindow().getAttributes();
+		lp.screenBrightness = 1.0f;
+		getWindow().setAttributes(lp);
 	}
 
 	@Override
@@ -97,8 +105,10 @@ public class ShotActivity extends Activity implements SensorEventListener {
 
 		mCameraView.openCamera();
 
-		mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_UI);
-		mSensorManager.registerListener(this, mMagnetometer, SensorManager.SENSOR_DELAY_UI);
+		mIsUsingGravity = false;
+		mSensorManager.registerListener(this, mGravitySensor, SensorManager.SENSOR_DELAY_FASTEST);
+		mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_FASTEST);
+		mSensorManager.registerListener(this, mMagnetometer, SensorManager.SENSOR_DELAY_FASTEST);
 	}
 
 	@Override
@@ -118,7 +128,12 @@ public class ShotActivity extends Activity implements SensorEventListener {
 	@Override
 	public void onSensorChanged(SensorEvent sensorEvent) {
 		//TODO: sensor fusion
-		if (sensorEvent.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+		if (sensorEvent.sensor.getType() == Sensor.TYPE_GRAVITY) {
+			mGravity = sensorEvent.values.clone();
+			mIsUsingGravity = true;
+		}
+
+		if (sensorEvent.sensor.getType() == Sensor.TYPE_ACCELEROMETER && !mIsUsingGravity) {
 			mGravity = sensorEvent.values.clone();
 		}
 

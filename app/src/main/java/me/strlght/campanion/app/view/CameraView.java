@@ -199,9 +199,13 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 		Camera.Parameters parameters = mCamera.getParameters();
 		parameters.setJpegQuality(100);
 		List<String> focusModes = parameters.getSupportedFocusModes();
-		if (focusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
-			parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+		if (focusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
+			parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
 		}
+		List<int[]> fpsRange = parameters.getSupportedPreviewFpsRange();
+		int[] fps = fpsRange.get(fpsRange.size() - 1);
+		parameters.setPreviewFpsRange(fps[Camera.Parameters.PREVIEW_FPS_MIN_INDEX],
+				fps[Camera.Parameters.PREVIEW_FPS_MAX_INDEX]);
 		mCamera.setParameters(parameters);
 		setBestPictureQuality();
 		updatePreviewSize();
