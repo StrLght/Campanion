@@ -3,6 +3,8 @@ package me.strlght.campanion.app.activity;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.hardware.*;
 import android.os.Bundle;
@@ -14,6 +16,7 @@ import me.strlght.campanion.app.R;
 import me.strlght.campanion.app.callback.DefaultPictureCallback;
 import me.strlght.campanion.app.callback.PictureCallback;
 import me.strlght.campanion.app.callback.StabilizedPictureCallback;
+import me.strlght.campanion.app.reciever.CameraButtonReceiver;
 import me.strlght.campanion.app.view.CameraView;
 import me.strlght.campanion.app.view.RegionCameraView;
 
@@ -43,6 +46,16 @@ public class ShotActivity extends Activity implements SensorEventListener {
 	private float[] mGravity;
 	private float[] mGeomagnetic;
 	private float mRoll;
+
+	private CameraButtonReceiver mButtonReceiver = new CameraButtonReceiver(
+			new CameraButtonReceiver.CameraButtonCallback() {
+
+				@Override
+				public void onReceive() {
+					takePhoto();
+				}
+
+			});
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -110,15 +123,19 @@ public class ShotActivity extends Activity implements SensorEventListener {
 		mSensorManager.registerListener(this, mGravitySensor, SensorManager.SENSOR_DELAY_FASTEST);
 		mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_FASTEST);
 		mSensorManager.registerListener(this, mMagnetometer, SensorManager.SENSOR_DELAY_FASTEST);
+
+		IntentFilter filter = new IntentFilter(Intent.ACTION_CAMERA_BUTTON);
+		filter.setPriority(IntentFilter.SYSTEM_HIGH_PRIORITY);
+		registerReceiver(mButtonReceiver, filter);
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
 
-		mCameraView.releaseCamera();
-
+		unregisterReceiver(mButtonReceiver);
 		mSensorManager.unregisterListener(this);
+		mCameraView.releaseCamera();
 	}
 
 	@Override
@@ -197,33 +214,37 @@ public class ShotActivity extends Activity implements SensorEventListener {
 		return params;
 	}
 
-	private class OnShutterListener implements View.OnClickListener {
-
-		private void setButtonsEnabled(boolean enabled) {
-			mSwitchButton.setEnabled(enabled);
-			mShutterButton.setEnabled(enabled);
-			mStabilityButton.setEnabled(enabled);
+	private void takePhoto() {
+		int facing = mCameraView.getCameraFacing();
+		for (PictureCallback callback : mPictureCallbacks) {
+			callback.setRoll(mRoll);
+			callback.setFacing(facing);
 		}
+
+		setButtonsEnabled(false);
+		mCameraView.setShutterCallback(new Camera.ShutterCallback() {
+
+			@Override
+			public void onShutter() {
+				setButtonsEnabled(true);
+			}
+
+		});
+
+		mCameraView.takePicture();
+	}
+
+	private void setButtonsEnabled(boolean enabled) {
+		mSwitchButton.setEnabled(enabled);
+		mShutterButton.setEnabled(enabled);
+		mStabilityButton.setEnabled(enabled);
+	}
+
+	private class OnShutterListener implements View.OnClickListener {
 
 		@Override
 		public void onClick(View view) {
-			int facing = mCameraView.getCameraFacing();
-			for (PictureCallback callback : mPictureCallbacks) {
-				callback.setRoll(mRoll);
-				callback.setFacing(facing);
-			}
-
-			setButtonsEnabled(false);
-			mCameraView.setShutterCallback(new Camera.ShutterCallback() {
-
-				@Override
-				public void onShutter() {
-					setButtonsEnabled(true);
-				}
-
-			});
-
-			mCameraView.takePicture();
+			takePhoto();
 		}
 
 	}
