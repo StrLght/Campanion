@@ -60,6 +60,14 @@ public class ShotActivity extends Activity implements SensorEventListener {
 		}
 
 		mCameraView.setJpegPictureCallback(mPictureCallbacks[mActiveCallbackNumber]);
+		mCameraView.setOnPreviewSizeChangeListener(new CameraView.OnPreviewSizeChangeListener() {
+
+			@Override
+			public void onPreviewSizeChanged(Camera.Size previewSize, Camera.Size actualSize) {
+				mRegionCameraView.setSize(previewSize, actualSize);
+			}
+
+		});
 		mStabilityButton.setImageResource(mPictureSwitchImages[mActiveCallbackNumber]);
 
 		mShutterButton.setOnClickListener(new OnShutterListener());
@@ -89,15 +97,6 @@ public class ShotActivity extends Activity implements SensorEventListener {
 		}
 
 		mCameraView.openCamera();
-		mCameraView.setOnPreviewSizeChangeListener(new CameraView.OnPreviewSizeChangeListener() {
-
-			@Override
-			public void onPreviewSizeChanged(Camera.Size previewSize, Camera.Size actualSize) {
-				mRegionCameraView.setSize(previewSize, actualSize);
-			}
-
-		});
-
 
 		mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_UI);
 		mSensorManager.registerListener(this, mMagnetometer, SensorManager.SENSOR_DELAY_UI);

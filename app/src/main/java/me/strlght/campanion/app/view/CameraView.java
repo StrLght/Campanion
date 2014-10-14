@@ -212,12 +212,18 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 		if (mCamera == null) {
 			return;
 		}
-		Camera.Parameters parameters = mCamera.getParameters();
-		setPreviewSize(getOptimalPreviewSize(mParentWidth, mParentHeight));
-		if (mPreviewSize != null) {
-			parameters.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
+		if (mParentWidth < 0 && mParentHeight < 0) {
+			return;
 		}
-		mCamera.setParameters(parameters);
+		Camera.Parameters parameters = mCamera.getParameters();
+		Camera.Size size = getOptimalPreviewSize(mParentWidth, mParentHeight);
+		setPreviewSize(size);
+		if (size != null) {
+			parameters.setPreviewSize(size.width, size.height);
+			stopPreview();
+			mCamera.setParameters(parameters);
+			startPreview(getHolder());
+		}
 	}
 
 	public void releaseCamera() {
@@ -254,7 +260,6 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 		try {
 			mCamera.setPreviewDisplay(holder);
 			fixPreviewRotation();
-			requestLayout();
 			mCamera.startPreview();
 		} catch (IOException e) {
 			Log.d(TAG, "Failed to start preview");
