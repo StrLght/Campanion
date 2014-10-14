@@ -16,7 +16,7 @@ import me.strlght.campanion.app.R;
 import me.strlght.campanion.app.callback.DefaultPictureCallback;
 import me.strlght.campanion.app.callback.PictureCallback;
 import me.strlght.campanion.app.callback.StabilizedPictureCallback;
-import me.strlght.campanion.app.reciever.CameraButtonReceiver;
+import me.strlght.campanion.app.receiver.CameraButtonReceiver;
 import me.strlght.campanion.app.view.CameraView;
 import me.strlght.campanion.app.view.RegionCameraView;
 

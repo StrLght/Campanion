@@ -1,4 +1,4 @@
-package me.strlght.campanion.app.reciever;
+package me.strlght.campanion.app.receiver;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
