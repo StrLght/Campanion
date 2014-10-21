@@ -18,9 +18,11 @@ import java.util.List;
 /**
  * Created by starlight on 10/10/14.
  */
+@SuppressWarnings("UnusedDeclaration")
 public class ImageDirectoryPagerAdapter extends FragmentStatePagerAdapter {
 
 	private static final String TAG = "ImageDirectoryPagerAdapter";
+
 	private final Handler mHandler = new Handler(Looper.getMainLooper());
 	private List<File> mImages;
 	private String mPath = null;

@@ -10,6 +10,7 @@ import me.strlght.campanion.app.util.FileUtils;
 /**
  * Created by starlight on 9/25/14.
  */
+@SuppressWarnings("UnusedDeclaration")
 public class StabilizedPictureCallback extends PictureCallback {
 
 	private static final String TAG = "StabilizedPictureCallback";

@@ -23,6 +23,7 @@ import java.util.List;
 /**
  * Created by StarLight on 10/5/14.
  */
+@SuppressWarnings("UnusedDeclaration")
 public class ImageDirectoryAdapter extends BaseAdapter {
 
 	private static final String TAG = "ImageDirectoryAdapter";

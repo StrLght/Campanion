@@ -10,6 +10,7 @@ import me.strlght.campanion.app.util.FileUtils;
 /**
  * Created by starlight on 9/26/14.
  */
+@SuppressWarnings("UnusedDeclaration")
 public class DefaultPictureCallback extends PictureCallback {
 
 	private static final String TAG = "DefaultPictureCallback";

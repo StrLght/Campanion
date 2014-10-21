@@ -23,6 +23,7 @@ import java.io.File;
 /**
  * Created by starlight on 10/9/14.
  */
+@SuppressWarnings("UnusedDeclaration")
 public class PreviewActivity extends FragmentActivity {
 
 	public static final String EXTRA_IMAGE_POSITION = "image_position";

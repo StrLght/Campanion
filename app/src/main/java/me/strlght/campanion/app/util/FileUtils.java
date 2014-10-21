@@ -20,6 +20,7 @@ public class FileUtils {
 
 	private static final String TAG = "Saver";
 
+	@SuppressWarnings("ResultOfMethodCallIgnored")
 	public static File getSaveDirectory() {
 		File sdDir = Environment.getExternalStorageDirectory();
 		File dir = new File(sdDir.getAbsolutePath() + File.separator + "Campanion");

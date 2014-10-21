@@ -9,6 +9,7 @@ import java.io.FilenameFilter;
 /**
  * Created by starlight on 10/10/14.
  */
+@SuppressWarnings("UnusedDeclaration")
 public class ImageObserver extends FileObserver {
 
 	private String mPath;

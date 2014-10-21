@@ -15,6 +15,7 @@ import java.util.List;
 /**
  * Created by starlight on 9/22/14.
  */
+@SuppressWarnings("UnusedDeclaration")
 public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 
 	private static final String TAG = "CameraView";
@@ -47,6 +48,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 		init();
 	}
 
+	@SuppressWarnings("SuspiciousNameCombination")
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		final int width = resolveSize(getSuggestedMinimumWidth(), widthMeasureSpec);

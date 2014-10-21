@@ -23,6 +23,7 @@ import me.strlght.campanion.app.view.RegionCameraView;
 /**
  * Created by starlight on 9/22/14.
  */
+@SuppressWarnings("UnusedDeclaration")
 public class ShotActivity extends Activity implements SensorEventListener {
 
 	private static final String TAG = "ShotActivity";
