@@ -122,6 +122,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 			return;
 		}
 		mPreviewSize = previewSize;
+		requestLayout();
 		if (mOnPreviewSizeChangeListener != null) {
 			mOnPreviewSizeChangeListener.onPreviewSizeChanged(mPreviewSize,
 					mCamera.getParameters().getPictureSize());
