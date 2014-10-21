@@ -9,11 +9,12 @@ import android.view.View;
 /**
  * Created by starlight on 10/12/14.
  */
+@SuppressWarnings("UnusedDeclaration")
 public class RegionCameraView extends View {
 
 	private Paint mPaint;
-	private Camera.Size mPreviewSize;
-	private Camera.Size mActualSize;
+	private int mScaledHeight = -1;
+	private int mScaledWidth = -1;
 
 	public RegionCameraView(Context context) {
 		super(context);
@@ -52,21 +53,24 @@ public class RegionCameraView extends View {
 		final int length = canvas.getWidth() + canvas.getHeight();
 		if (length > 0) {
 			canvas.drawColor(Color.parseColor("#CC000000"));
-			if (mPreviewSize != null) {
-				float k = (float) mActualSize.width / mActualSize.height;
-				int scaledWidth = (int) ((float) mPreviewSize.width / Math.sqrt(1 + Math.pow(k, 2)));
-				int scaledHeight = (int) ((float) scaledWidth / k);
+			if (mScaledWidth >= 0 && mScaledHeight >= 0) {
 				int centerX = canvas.getWidth() / 2;
 				int centerY = canvas.getHeight() / 2;
-				canvas.drawRect(centerX - scaledWidth / 2, centerY - scaledHeight / 2, centerX + scaledWidth / 2, centerY + scaledHeight / 2, mPaint);
+				canvas.drawRect(centerX - mScaledWidth / 2, centerY - mScaledHeight / 2, centerX + mScaledWidth / 2, centerY + mScaledHeight / 2, mPaint);
 			}
 			canvas.save();
 		}
 	}
 
 	public void setSize(Camera.Size previewSize, Camera.Size actualSize) {
-		mPreviewSize = previewSize;
-		mActualSize = actualSize;
+		if (previewSize != null) {
+			float k = (float) actualSize.width / actualSize.height;
+			mScaledWidth = (int) ((float) previewSize.width / Math.sqrt(1 + Math.pow(k, 2)));
+			mScaledHeight = (int) ((float) mScaledWidth / k);
+		} else {
+			mScaledWidth = -1;
+			mScaledHeight = -1;
+		}
 		invalidate();
 	}
 
