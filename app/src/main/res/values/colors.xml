@@ -10,5 +10,6 @@
     <item name="transparent_white" type="color">#AAFFFFFF</item>
     <item name="shot_button_start" type="color">#FFCC0000</item>
     <item name="shot_button_end" type="color">#FF990000</item>
+    <item name="stabilized_view_background" type="color">#CC000000</item>
 
 </resources>

@@ -1,10 +1,14 @@
 package me.strlght.campanion.app.view;
 
 import android.content.Context;
-import android.graphics.*;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.hardware.Camera;
 import android.util.AttributeSet;
 import android.view.View;
+import me.strlght.campanion.app.R;
 
 /**
  * Created by starlight on 10/12/14.
@@ -33,7 +37,7 @@ public class RegionCameraView extends View {
 
 	private void init() {
 		mPaint = new Paint();
-		mPaint.setColor(Color.parseColor("#00000000"));
+		mPaint.setColor(getResources().getColor(R.color.transparent));
 		mPaint.setStyle(Paint.Style.FILL);
 		mPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
 		setLayerType(LAYER_TYPE_HARDWARE, null);
@@ -52,7 +56,7 @@ public class RegionCameraView extends View {
 	protected void onDraw(Canvas canvas) {
 		final int length = canvas.getWidth() + canvas.getHeight();
 		if (length > 0) {
-			canvas.drawColor(Color.parseColor("#CC000000"));
+			canvas.drawColor(getResources().getColor(R.color.stabilized_view_background));
 			if (mScaledWidth >= 0 && mScaledHeight >= 0) {
 				int centerX = canvas.getWidth() / 2;
 				int centerY = canvas.getHeight() / 2;
