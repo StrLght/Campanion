@@ -14,8 +14,6 @@ public class RegionCameraView extends View {
 	private Paint mPaint;
 	private Camera.Size mPreviewSize;
 	private Camera.Size mActualSize;
-	private Bitmap mRegion;
-	private float mRotation;
 
 	public RegionCameraView(Context context) {
 		super(context);
@@ -37,6 +35,7 @@ public class RegionCameraView extends View {
 		mPaint.setColor(Color.parseColor("#00000000"));
 		mPaint.setStyle(Paint.Style.FILL);
 		mPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+		setLayerType(LAYER_TYPE_HARDWARE, null);
 	}
 
 	@Override
@@ -49,51 +48,26 @@ public class RegionCameraView extends View {
 	}
 
 	@Override
-	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-		super.onSizeChanged(w, h, oldw, oldh);
-
-		if (mPreviewSize != null && mActualSize != null) {
-			setSize(mPreviewSize, mActualSize);
-		}
-	}
-
-	@Override
 	protected void onDraw(Canvas canvas) {
-		if (mRegion != null) {
-			Matrix transform = new Matrix();
-			transform.postTranslate(-mRegion.getWidth() / 2, -mRegion.getHeight() / 2);
-			transform.postRotate(mRotation);
-			canvas.drawBitmap(mRegion, transform, null);
+		final int length = canvas.getWidth() + canvas.getHeight();
+		if (length > 0) {
+			canvas.drawColor(Color.parseColor("#CC000000"));
+			if (mPreviewSize != null) {
+				float k = (float) mActualSize.width / mActualSize.height;
+				int scaledWidth = (int) ((float) mPreviewSize.width / Math.sqrt(1 + Math.pow(k, 2)));
+				int scaledHeight = (int) ((float) scaledWidth / k);
+				int centerX = canvas.getWidth() / 2;
+				int centerY = canvas.getHeight() / 2;
+				canvas.drawRect(centerX - scaledWidth / 2, centerY - scaledHeight / 2, centerX + scaledWidth / 2, centerY + scaledHeight / 2, mPaint);
+			}
+			canvas.save();
 		}
-	}
-
-	@Override
-	public void setRotation(float rotation) {
-		mRotation = rotation;
-		invalidate();
 	}
 
 	public void setSize(Camera.Size previewSize, Camera.Size actualSize) {
-		requestLayout();
-		// TODO: fix this
-		final int wph = getWidth() + getHeight();
-		final int length = Math.min(2048, wph);
 		mPreviewSize = previewSize;
 		mActualSize = actualSize;
-
-		if (length > 0 && wph != 0) {
-			mRegion = Bitmap.createBitmap(length, length, Bitmap.Config.ARGB_8888);
-			mRegion.eraseColor(Color.parseColor("#00000000"));
-			Canvas canvas = new Canvas(mRegion);
-			canvas.drawColor(Color.parseColor("#CC000000"));
-			if (previewSize != null) {
-				float k = (float) mActualSize.width / mActualSize.height;
-				int scaledWidth = (int) ((float) previewSize.width / Math.sqrt(1 + Math.pow(k, 2)));
-				int scaledHeight = (int) ((float) scaledWidth / k);
-				int center = length / 2;
-				canvas.drawRect(center - scaledWidth / 2, center - scaledHeight / 2, center + scaledWidth / 2, center + scaledHeight / 2, mPaint);
-			}
-		}
+		invalidate();
 	}
 
 }
