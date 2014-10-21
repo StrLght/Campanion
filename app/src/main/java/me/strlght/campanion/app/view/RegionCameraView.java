@@ -60,7 +60,10 @@ public class RegionCameraView extends View {
 			if (mScaledWidth >= 0 && mScaledHeight >= 0) {
 				int centerX = canvas.getWidth() / 2;
 				int centerY = canvas.getHeight() / 2;
-				canvas.drawRect(centerX - mScaledWidth / 2, centerY - mScaledHeight / 2, centerX + mScaledWidth / 2, centerY + mScaledHeight / 2, mPaint);
+				canvas.drawRect(centerX - mScaledWidth / 2,
+						centerY - mScaledHeight / 2,
+						centerX + mScaledWidth / 2,
+						centerY + mScaledHeight / 2, mPaint);
 			}
 			canvas.save();
 		}
