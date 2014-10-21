@@ -3,6 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/black"
+    android:clipChildren="false"
+    android:clipToPadding="false"
     android:keepScreenOn="true"
     tools:context=".ShotActivity">
 
@@ -16,8 +18,7 @@
         android:id="@+id/region_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_centerInParent="true"
-        android:scaleType="fitCenter" />
+        android:layout_centerInParent="true" />
 
     <ImageButton
         android:id="@+id/switch_button"

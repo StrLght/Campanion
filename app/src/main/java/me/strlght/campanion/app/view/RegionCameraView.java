@@ -1,19 +1,25 @@
 package me.strlght.campanion.app.view;
 
 import android.content.Context;
-import android.graphics.*;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.hardware.Camera;
 import android.util.AttributeSet;
-import android.widget.ImageView;
+import android.view.View;
+import me.strlght.campanion.app.R;
 
 /**
  * Created by starlight on 10/12/14.
  */
-public class RegionCameraView extends ImageView {
+@SuppressWarnings("UnusedDeclaration")
+public class RegionCameraView extends View {
 
 	private Paint mPaint;
-	private Camera.Size mPreviewSize;
-	private Camera.Size mActualSize;
+	private int mScaledHeight = -1;
+	private int mScaledWidth = -1;
+	private float mRotation;
 
 	public RegionCameraView(Context context) {
 		super(context);
@@ -32,9 +38,10 @@ public class RegionCameraView extends ImageView {
 
 	private void init() {
 		mPaint = new Paint();
-		mPaint.setColor(Color.parseColor("#00000000"));
+		mPaint.setColor(getResources().getColor(R.color.transparent));
 		mPaint.setStyle(Paint.Style.FILL);
 		mPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+		setLayerType(LAYER_TYPE_HARDWARE, null);
 	}
 
 	@Override
@@ -47,36 +54,40 @@ public class RegionCameraView extends ImageView {
 	}
 
 	@Override
-	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-		super.onSizeChanged(w, h, oldw, oldh);
-
-		if (mPreviewSize != null && mActualSize != null) {
-			setSize(mPreviewSize, mActualSize);
+	protected void onDraw(Canvas canvas) {
+		final int length = canvas.getWidth() + canvas.getHeight();
+		if (length > 0) {
+			canvas.drawColor(getResources().getColor(R.color.stabilized_view_background));
+			if (mScaledWidth >= 0 && mScaledHeight >= 0) {
+				int centerX = canvas.getWidth() / 2;
+				int centerY = canvas.getHeight() / 2;
+				canvas.save();
+				canvas.rotate(mRotation, centerX, centerY);
+				canvas.drawRect(centerX - mScaledWidth / 2,
+						centerY - mScaledHeight / 2,
+						centerX + mScaledWidth / 2,
+						centerY + mScaledHeight / 2, mPaint);
+				canvas.restore();
+			}
 		}
 	}
 
+	@Override
+	public void setRotation(float rotation) {
+		mRotation = rotation;
+		invalidate();
+	}
+
 	public void setSize(Camera.Size previewSize, Camera.Size actualSize) {
-		requestLayout();
-		final int wph = getWidth() + getHeight();
-		final int length = Math.min(2048, wph);
-		mPreviewSize = previewSize;
-		mActualSize = actualSize;
-
-		if (length > 0 && wph != 0) {
-			Bitmap region = Bitmap.createBitmap(length, length, Bitmap.Config.ARGB_8888);
-			region.eraseColor(Color.parseColor("#00000000"));
-			Canvas canvas = new Canvas(region);
-			canvas.drawColor(Color.parseColor("#CC000000"));
-			if (previewSize != null) {
-				float k = (float) mActualSize.width / mActualSize.height;
-				int scaledWidth = (int) ((float) previewSize.width / Math.sqrt(1 + Math.pow(k, 2)));
-				int scaledHeight = (int) ((float) scaledWidth / k);
-				int center = length / 2;
-				canvas.drawRect(center - scaledWidth / 2, center - scaledHeight / 2, center + scaledWidth / 2, center + scaledHeight / 2, mPaint);
-			}
-
-			setImageBitmap(region);
+		if (previewSize != null) {
+			float k = (float) actualSize.width / actualSize.height;
+			mScaledWidth = (int) ((float) previewSize.width / Math.sqrt(1 + Math.pow(k, 2)));
+			mScaledHeight = (int) ((float) mScaledWidth / k);
+		} else {
+			mScaledWidth = -1;
+			mScaledHeight = -1;
 		}
+		invalidate();
 	}
 
 }
