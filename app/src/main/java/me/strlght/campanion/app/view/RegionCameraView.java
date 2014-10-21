@@ -41,16 +41,6 @@ public class RegionCameraView extends View {
 		mPaint.setColor(getResources().getColor(R.color.transparent));
 		mPaint.setStyle(Paint.Style.FILL);
 		mPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
-		setLayerType(LAYER_TYPE_HARDWARE, null);
-	}
-
-	@Override
-	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-		final int width = resolveSize(getSuggestedMinimumWidth(), widthMeasureSpec);
-		final int height = resolveSize(getSuggestedMinimumHeight(), heightMeasureSpec);
-		final int size = width + height;
-
-		setMeasuredDimension(size, size);
 	}
 
 	@Override
