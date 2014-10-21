@@ -124,8 +124,10 @@ public class ShotActivity extends Activity implements SensorEventListener {
 		mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_FASTEST);
 		mSensorManager.registerListener(this, mMagnetometer, SensorManager.SENSOR_DELAY_FASTEST);
 
-		IntentFilter filter = new IntentFilter(Intent.ACTION_CAMERA_BUTTON);
-		filter.setPriority(IntentFilter.SYSTEM_HIGH_PRIORITY);
+		IntentFilter filter = new IntentFilter();
+		filter.addAction(Intent.ACTION_CAMERA_BUTTON);
+		filter.addAction(Intent.ACTION_MEDIA_BUTTON);
+		filter.setPriority(IntentFilter.SYSTEM_HIGH_PRIORITY - 1);
 		registerReceiver(mButtonReceiver, filter);
 	}
 
