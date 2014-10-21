@@ -19,6 +19,7 @@ public class RegionCameraView extends View {
 	private Paint mPaint;
 	private int mScaledHeight = -1;
 	private int mScaledWidth = -1;
+	private float mRotation;
 
 	public RegionCameraView(Context context) {
 		super(context);
@@ -60,13 +61,21 @@ public class RegionCameraView extends View {
 			if (mScaledWidth >= 0 && mScaledHeight >= 0) {
 				int centerX = canvas.getWidth() / 2;
 				int centerY = canvas.getHeight() / 2;
+				canvas.save();
+				canvas.rotate(mRotation, centerX, centerY);
 				canvas.drawRect(centerX - mScaledWidth / 2,
 						centerY - mScaledHeight / 2,
 						centerX + mScaledWidth / 2,
 						centerY + mScaledHeight / 2, mPaint);
+				canvas.restore();
 			}
-			canvas.save();
 		}
+	}
+
+	@Override
+	public void setRotation(float rotation) {
+		mRotation = rotation;
+		invalidate();
 	}
 
 	public void setSize(Camera.Size previewSize, Camera.Size actualSize) {
