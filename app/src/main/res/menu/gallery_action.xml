@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/action_edit"
+        android:enabled="true"
+        android:icon="@drawable/selector_edit"
+        android:showAsAction="ifRoom"
+        android:title="@string/edit_button_text"/>
+    <item
+        android:id="@+id/action_share"
+        android:enabled="true"
+        android:icon="@drawable/selector_share"
+        android:showAsAction="ifRoom"
+        android:title="@string/share_button_text"/>
+    <item
+        android:id="@+id/action_delete"
+        android:enabled="true"
+        android:icon="@drawable/selector_delete"
+        android:showAsAction="ifRoom"
+        android:title="@string/delete_button_text"/>
+
+</menu>

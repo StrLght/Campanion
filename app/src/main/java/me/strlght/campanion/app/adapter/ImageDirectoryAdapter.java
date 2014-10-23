@@ -4,10 +4,10 @@ import android.content.Context;
 import android.os.FileObserver;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import com.squareup.picasso.Picasso;
@@ -23,14 +23,13 @@ import java.util.List;
 /**
  * Created by StarLight on 10/5/14.
  */
-@SuppressWarnings("UnusedDeclaration")
-public class ImageDirectoryAdapter extends BaseAdapter {
+public class ImageDirectoryAdapter extends RecyclerView.Adapter<ImageDirectoryAdapter.ViewHolder> {
 
+	@SuppressWarnings("UnusedDeclaration")
 	private static final String TAG = "ImageDirectoryAdapter";
-
 	private final Handler mHandler = new Handler(Looper.getMainLooper());
+	private final List<File> mImages;
 	private Context mContext;
-	private List<File> mImages;
 	private List<Boolean> mSelected;
 	private String mPath = null;
 	private ImageObserver mObserver;
@@ -48,29 +47,19 @@ public class ImageDirectoryAdapter extends BaseAdapter {
 
 			@Override
 			public void onDirectoryChange(String[] files) {
-				mImages.clear();
-				for (String file : files) {
-					mImages.add(new File(mPath + File.separator + file));
-				}
-				Collections.sort(mImages, new FileUtils.Comparator());
+				synchronized (mImages) {
+					mImages.clear();
+					for (String file : files) {
+						mImages.add(new File(mPath + File.separator + file));
+					}
+					Collections.sort(mImages, new FileUtils.Comparator());
 
-				clearSelection();
+					clearSelection();
+				}
 			}
 
 		});
 		startWatching();
-	}
-
-	@Override
-	public void notifyDataSetChanged() {
-		mHandler.post(new Runnable() {
-
-			@Override
-			public void run() {
-				ImageDirectoryAdapter.super.notifyDataSetChanged();
-			}
-
-		});
 	}
 
 	public void startWatching() {
@@ -87,7 +76,14 @@ public class ImageDirectoryAdapter extends BaseAdapter {
 		for (int i = 0; i < mImages.size(); i++) {
 			mSelected.add(false);
 		}
-		notifyDataSetChanged();
+		mHandler.post(new Runnable() {
+
+			@Override
+			public void run() {
+				notifyDataSetChanged();
+			}
+
+		});
 	}
 
 	public boolean isAnySelected() {
@@ -127,14 +123,31 @@ public class ImageDirectoryAdapter extends BaseAdapter {
 		return images;
 	}
 
-	@Override
-	public int getCount() {
-		return mImages.size();
+	public File getItem(int position) {
+		return mImages.get(position);
 	}
 
 	@Override
-	public Object getItem(int i) {
-		return mImages.get(i);
+	public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
+		View v = LayoutInflater.from(mContext).inflate(R.layout.li_gallery, viewGroup, false);
+		FrameLayout imageLayout = (FrameLayout) v.findViewById(R.id.image_layout);
+		ImageView imageView = (ImageView) v.findViewById(R.id.image_view);
+		return new ViewHolder(imageLayout, imageView);
+	}
+
+	@Override
+	public void onBindViewHolder(ViewHolder viewHolder, int i) {
+		if (mSelected.get(i)) {
+			viewHolder.mFrameLayout.setForeground(mContext.getResources().getDrawable(R.drawable.selector_gallery));
+		} else {
+			viewHolder.mFrameLayout.setForeground(mContext.getResources().getDrawable(R.color.transparent));
+		}
+
+		Picasso.with(mContext)
+				.load(new File(mImages.get(i).getAbsolutePath()))
+				.resize(256, 256)
+				.centerCrop()
+				.into(viewHolder.mImageView);
 	}
 
 	@Override
@@ -143,31 +156,21 @@ public class ImageDirectoryAdapter extends BaseAdapter {
 	}
 
 	@Override
-	public View getView(int i, View view, ViewGroup viewGroup) {
-		final String image = mImages.get(i).getAbsolutePath();
+	public int getItemCount() {
+		return mImages.size();
+	}
 
-		View v = view;
-		if (v == null) {
-			LayoutInflater layoutInflater = LayoutInflater.from(mContext);
-			v = layoutInflater.inflate(R.layout.li_gallery, viewGroup, false);
+	public static class ViewHolder extends RecyclerView.ViewHolder {
+
+		private final FrameLayout mFrameLayout;
+		private final ImageView mImageView;
+
+		public ViewHolder(FrameLayout frameLayout, ImageView imageView) {
+			super(frameLayout);
+			mFrameLayout = frameLayout;
+			mImageView = imageView;
 		}
 
-		FrameLayout imageLayout = (FrameLayout) v.findViewById(R.id.image_layout);
-		ImageView imageView = (ImageView) v.findViewById(R.id.image_view);
-
-		if (mSelected.get(i)) {
-			imageLayout.setForeground(mContext.getResources().getDrawable(R.drawable.selector_gallery));
-		} else {
-			imageLayout.setForeground(mContext.getResources().getDrawable(R.color.transparent));
-		}
-
-		Picasso.with(mContext)
-				.load(new File(image))
-				.resize(256, 256)
-				.centerCrop()
-				.into(imageView);
-
-		return v;
 	}
 
 }
