@@ -10,6 +10,7 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -35,7 +36,7 @@ public class GalleryActivity extends Activity {
 	private static final int REQUEST_CODE = 1;
 	private final String mDirectory = FileUtils.getSaveDirectory().getAbsolutePath();
 	private RecyclerView mGridView;
-	private Menu mMenu;
+	private ActionMode mActionMenu;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -80,17 +81,10 @@ public class GalleryActivity extends Activity {
 	}
 
 	private void setMenuActionsEnabled(boolean visibility) {
-		if (mMenu != null) {
-			setMenuItemEnabled(mMenu.findItem(R.id.action_edit), visibility);
-			setMenuItemEnabled(mMenu.findItem(R.id.action_share), visibility);
-			setMenuItemEnabled(mMenu.findItem(R.id.action_delete), visibility);
-			setMenuItemEnabled(mMenu.findItem(R.id.action_deselect), visibility);
-		}
-	}
-
-	private void setMenuItemEnabled(MenuItem item, boolean visibility) {
-		if (item != null) {
-			item.setEnabled(visibility);
+		if (mActionMenu == null && visibility) {
+			mActionMenu = startActionMode(new ActionMenu());
+		} else if (mActionMenu != null && !visibility) {
+			mActionMenu.finish();
 		}
 	}
 
@@ -120,32 +114,90 @@ public class GalleryActivity extends Activity {
 		getMenuInflater().inflate(R.menu.gallery, menu);
 
 		//TODO: add settings
-
-		mMenu = menu;
-
-		menu.findItem(R.id.action_edit).setOnMenuItemClickListener(new OnEditButtonClickListener(
-				new OnEditButtonClickListener.EditImageGetter() {
-
-					@Override
-					public File getImage() {
-						ImageDirectoryAdapter adapter = (ImageDirectoryAdapter) mGridView.getAdapter();
-						return adapter.getItem(adapter.getFirstSelectedIndex());
-					}
-
-					@Override
-					public Activity getActivity() {
-						return GalleryActivity.this;
-					}
-
-				}));
-
-		menu.findItem(R.id.action_share).setOnMenuItemClickListener(new OnShareButtonClickListener());
-
-		menu.findItem(R.id.action_delete).setOnMenuItemClickListener(new OnDeleteButtonClickListener());
-
-		menu.findItem(R.id.action_deselect).setOnMenuItemClickListener(new OnCloseButtonClickListener());
-
 		return true;
+	}
+
+	private class ActionMenu implements ActionMode.Callback {
+
+		@Override
+		public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+			getMenuInflater().inflate(R.menu.gallery_action, menu);
+			return true;
+		}
+
+		@Override
+		public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+			return false;
+		}
+
+		@Override
+		public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+			final ImageDirectoryAdapter adapter = (ImageDirectoryAdapter) mGridView.getAdapter();
+			switch (item.getItemId()) {
+				case R.id.action_edit:
+					OnEditButtonClickListener clickListener = new OnEditButtonClickListener(
+							new OnEditButtonClickListener.EditImageGetter() {
+
+								@Override
+								public File getImage() {
+									ImageDirectoryAdapter adapter = (ImageDirectoryAdapter) mGridView.getAdapter();
+									return adapter.getItem(adapter.getFirstSelectedIndex());
+								}
+
+								@Override
+								public Activity getActivity() {
+									return GalleryActivity.this;
+								}
+
+							});
+					clickListener.onMenuItemClick(item);
+					mode.finish();
+					return true;
+				case R.id.action_share:
+					List<File> files = adapter.getSelected();
+					if (files.size() == 1) {
+						ShareUtils.shareImage(GalleryActivity.this, files.get(0));
+					} else {
+						ShareUtils.shareImages(GalleryActivity.this, files);
+					}
+					mode.finish();
+					return true;
+				case R.id.action_delete:
+					final List<File> selection = adapter.getSelected();
+					AlertDialog.Builder builder = new AlertDialog.Builder(GalleryActivity.this);
+					builder.setMessage(R.string.delete_question)
+							.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+
+								@Override
+								public void onClick(DialogInterface dialogInterface, int i) {
+									adapter.stopWatching();
+									for (File image : selection) {
+										if (!FileUtils.delete(image)) {
+											Toast.makeText(getBaseContext(),
+													R.string.delete_fail, Toast.LENGTH_SHORT)
+													.show();
+										}
+									}
+									adapter.startWatching();
+								}
+
+							})
+							.setNegativeButton(android.R.string.no, null)
+							.create()
+							.show();
+					mode.finish();
+					return true;
+				default:
+					return false;
+			}
+		}
+
+		@Override
+		public void onDestroyActionMode(ActionMode mode) {
+			mActionMenu = null;
+			ImageDirectoryAdapter adapter = (ImageDirectoryAdapter) mGridView.getAdapter();
+			adapter.clearSelection();
+		}
 	}
 
 	private class OnItemClickListener implements RecyclerItemClickListener.OnItemClickListener {
@@ -157,7 +209,12 @@ public class GalleryActivity extends Activity {
 			adapter.setSelected(i, !isSelected);
 			boolean isOneElementSelected = (adapter.getSelected().size() == 1);
 			setMenuActionsEnabled(adapter.isAnySelected());
-			mMenu.findItem(R.id.action_edit).setEnabled(isOneElementSelected);
+			if (mActionMenu != null) {
+				MenuItem item = mActionMenu.getMenu().findItem(R.id.action_edit);
+				if (item != null) {
+					item.setEnabled(isOneElementSelected);
+				}
+			}
 		}
 
 		@Override
@@ -192,68 +249,6 @@ public class GalleryActivity extends Activity {
 			intent.setType("image/*");
 			intent.addCategory(Intent.CATEGORY_OPENABLE);
 			startActivityForResult(intent, REQUEST_CODE);
-		}
-
-	}
-
-	private class OnShareButtonClickListener implements MenuItem.OnMenuItemClickListener {
-
-		@Override
-		public boolean onMenuItemClick(MenuItem menuItem) {
-			ImageDirectoryAdapter adapter = (ImageDirectoryAdapter) mGridView.getAdapter();
-			List<File> files = adapter.getSelected();
-			if (files.size() == 1) {
-				ShareUtils.shareImage(GalleryActivity.this, files.get(0));
-			} else {
-				ShareUtils.shareImages(GalleryActivity.this, files);
-			}
-			return true;
-		}
-
-	}
-
-	private class OnDeleteButtonClickListener implements MenuItem.OnMenuItemClickListener {
-
-		@Override
-		public boolean onMenuItemClick(MenuItem menuItem) {
-			AlertDialog.Builder builder = new AlertDialog.Builder(GalleryActivity.this);
-			builder.setMessage(R.string.delete_question)
-					.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-
-						@Override
-						public void onClick(DialogInterface dialogInterface, int i) {
-							ImageDirectoryAdapter adapter = (ImageDirectoryAdapter) mGridView.getAdapter();
-							List<File> selection = adapter.getSelected();
-							adapter.stopWatching();
-							for (File image : selection) {
-								if (!FileUtils.delete(image)) {
-									Toast.makeText(getBaseContext(),
-											R.string.delete_fail, Toast.LENGTH_SHORT)
-											.show();
-								}
-							}
-							setMenuActionsEnabled(false);
-							adapter.startWatching();
-						}
-
-					})
-					.setNegativeButton(android.R.string.no, null)
-					.create()
-					.show();
-
-			return true;
-		}
-
-	}
-
-	private class OnCloseButtonClickListener implements MenuItem.OnMenuItemClickListener {
-
-		@Override
-		public boolean onMenuItemClick(MenuItem menuItem) {
-			ImageDirectoryAdapter adapter = (ImageDirectoryAdapter) mGridView.getAdapter();
-			adapter.clearSelection();
-			setMenuActionsEnabled(false);
-			return true;
 		}
 
 	}

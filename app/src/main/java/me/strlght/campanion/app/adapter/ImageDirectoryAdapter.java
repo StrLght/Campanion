@@ -2,6 +2,8 @@ package me.strlght.campanion.app.adapter;
 
 import android.content.Context;
 import android.os.FileObserver;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,6 +27,7 @@ public class ImageDirectoryAdapter extends RecyclerView.Adapter<ImageDirectoryAd
 
 	@SuppressWarnings("UnusedDeclaration")
 	private static final String TAG = "ImageDirectoryAdapter";
+	private final Handler mHandler = new Handler(Looper.getMainLooper());
 	private final List<File> mImages;
 	private Context mContext;
 	private List<Boolean> mSelected;
@@ -73,7 +76,14 @@ public class ImageDirectoryAdapter extends RecyclerView.Adapter<ImageDirectoryAd
 		for (int i = 0; i < mImages.size(); i++) {
 			mSelected.add(false);
 		}
-		notifyDataSetChanged();
+		mHandler.post(new Runnable() {
+
+			@Override
+			public void run() {
+				notifyDataSetChanged();
+			}
+
+		});
 	}
 
 	public boolean isAnySelected() {
