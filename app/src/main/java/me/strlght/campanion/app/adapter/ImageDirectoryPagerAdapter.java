@@ -24,7 +24,7 @@ public class ImageDirectoryPagerAdapter extends FragmentStatePagerAdapter {
 	private static final String TAG = "ImageDirectoryPagerAdapter";
 
 	private final Handler mHandler = new Handler(Looper.getMainLooper());
-	private List<File> mImages;
+	private final List<File> mImages;
 	private String mPath = null;
 	private ImageObserver mObserver;
 
@@ -40,28 +40,30 @@ public class ImageDirectoryPagerAdapter extends FragmentStatePagerAdapter {
 
 			@Override
 			public void onDirectoryChange(String[] files) {
-				mImages.clear();
-				for (String file : files) {
-					mImages.add(new File(mPath + File.separator + file));
-				}
-				Collections.sort(mImages, new FileUtils.Comparator());
-
-				mHandler.post(new Runnable() {
-
-					@Override
-					public void run() {
-						notifyDataSetChanged();
+				synchronized (mImages) {
+					mImages.clear();
+					for (String file : files) {
+						mImages.add(new File(mPath + File.separator + file));
 					}
+					Collections.sort(mImages, new FileUtils.Comparator());
 
-				});
+					mHandler.post(new Runnable() {
+
+						@Override
+						public void run() {
+							notifyDataSetChanged();
+						}
+
+					});
+				}
 			}
 
 		});
-		mObserver.onEvent(0, null);
-		mObserver.startWatching();
+		startWatching();
 	}
 
 	public void startWatching() {
+		mObserver.onEvent(0, null);
 		mObserver.startWatching();
 	}
 

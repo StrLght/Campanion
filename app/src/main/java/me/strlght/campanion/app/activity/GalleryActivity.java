@@ -8,16 +8,17 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.Toast;
 import me.strlght.campanion.app.R;
 import me.strlght.campanion.app.adapter.ImageDirectoryAdapter;
 import me.strlght.campanion.app.listener.OnEditButtonClickListener;
+import me.strlght.campanion.app.listener.RecyclerItemClickListener;
 import me.strlght.campanion.app.util.AviaryUtils;
 import me.strlght.campanion.app.util.FileUtils;
 import me.strlght.campanion.app.util.ShareUtils;
@@ -34,7 +35,7 @@ public class GalleryActivity extends Activity {
 	private static final long DOUBLE_TAP_INTERVAL = 400;
 	private static final int REQUEST_CODE = 1;
 	private final String mDirectory = FileUtils.getSaveDirectory().getAbsolutePath();
-	private GridView mGridView;
+	private RecyclerView mGridView;
 	private Menu mMenu;
 	private int mLastSelectedElement = -1;
 	private long mLastSelectedTime = 0;
@@ -49,8 +50,9 @@ public class GalleryActivity extends Activity {
 		ImageButton addButton = (ImageButton) findViewById(R.id.add_button);
 		addButton.setOnClickListener(new OnAddButtonClickListener());
 
-		mGridView = (GridView) findViewById(R.id.pictures_view);
-		mGridView.setOnItemClickListener(new OnItemClickListener());
+		mGridView = (RecyclerView) findViewById(R.id.pictures_view);
+		mGridView.setLayoutManager(new GridLayoutManager(this, 3));
+		mGridView.addOnItemTouchListener(new RecyclerItemClickListener(this, new OnItemClickListener()));
 	}
 
 	@Override
@@ -61,8 +63,7 @@ public class GalleryActivity extends Activity {
 	}
 
 	private void init() {
-		mGridView.setAdapter(new ImageDirectoryAdapter(getBaseContext(),
-				mDirectory));
+		mGridView.setAdapter(new ImageDirectoryAdapter(this, mDirectory));
 	}
 
 	@Override
@@ -131,7 +132,7 @@ public class GalleryActivity extends Activity {
 					@Override
 					public File getImage() {
 						ImageDirectoryAdapter adapter = (ImageDirectoryAdapter) mGridView.getAdapter();
-						return (File) adapter.getItem(adapter.getFirstSelectedIndex());
+						return adapter.getItem(adapter.getFirstSelectedIndex());
 					}
 
 					@Override
@@ -150,36 +151,34 @@ public class GalleryActivity extends Activity {
 		return true;
 	}
 
-	private class OnItemClickListener implements GridView.OnItemClickListener {
+	private class OnItemClickListener implements RecyclerItemClickListener.OnItemClickListener {
 
 		@Override
-		public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-			synchronized (this) {
-				ImageDirectoryAdapter adapter = (ImageDirectoryAdapter) mGridView.getAdapter();
-				long time = System.currentTimeMillis();
-				List<File> selected = adapter.getSelected();
-				boolean isOneOrLessSelected = (selected.size() <= 1);
-				boolean isSelected = adapter.isSelected(i);
-				if (i == mLastSelectedElement
-						&& (time - mLastSelectedTime) <= DOUBLE_TAP_INTERVAL
-						&& isOneOrLessSelected
-						&& isSelected) {
-					if (selected.size() == 1) {
-						Intent intent = new Intent(GalleryActivity.this, PreviewActivity.class);
-						intent.putExtra(PreviewActivity.EXTRA_IMAGE_POSITION, i);
-						intent.putExtra(PreviewActivity.EXTRA_IMAGE_DIRECTORY, mDirectory);
-						startActivity(intent);
-						return;
-					}
+		public void onItemClick(View view, int i) {
+			ImageDirectoryAdapter adapter = (ImageDirectoryAdapter) mGridView.getAdapter();
+			long time = System.currentTimeMillis();
+			List<File> selected = adapter.getSelected();
+			boolean isOneOrLessSelected = (selected.size() <= 1);
+			boolean isSelected = adapter.isSelected(i);
+			if (i == mLastSelectedElement
+					&& (time - mLastSelectedTime) <= DOUBLE_TAP_INTERVAL
+					&& isOneOrLessSelected
+					&& isSelected) {
+				if (selected.size() == 1) {
+					Intent intent = new Intent(GalleryActivity.this, PreviewActivity.class);
+					intent.putExtra(PreviewActivity.EXTRA_IMAGE_POSITION, i);
+					intent.putExtra(PreviewActivity.EXTRA_IMAGE_DIRECTORY, mDirectory);
+					startActivity(intent);
+					return;
 				}
-				adapter.setSelected(i, !isSelected);
-				mLastSelectedElement = i;
-				mLastSelectedTime = time;
-
-				boolean isOneElementSelected = (adapter.getSelected().size() == 1);
-				setMenuActionsEnabled(adapter.isAnySelected());
-				mMenu.findItem(R.id.action_edit).setEnabled(isOneElementSelected);
 			}
+			adapter.setSelected(i, !isSelected);
+			mLastSelectedElement = i;
+			mLastSelectedTime = time;
+
+			boolean isOneElementSelected = (adapter.getSelected().size() == 1);
+			setMenuActionsEnabled(adapter.isAnySelected());
+			mMenu.findItem(R.id.action_edit).setEnabled(isOneElementSelected);
 		}
 
 	}
