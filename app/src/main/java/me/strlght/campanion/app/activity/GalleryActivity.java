@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -49,7 +50,12 @@ public class GalleryActivity extends Activity {
 		addButton.setOnClickListener(new OnAddButtonClickListener());
 
 		mGridView = (RecyclerView) findViewById(R.id.pictures_view);
-		mGridView.setLayoutManager(new GridLayoutManager(this, 3));
+		Point p = new Point();
+		getWindowManager().getDefaultDisplay().getSize(p);
+		int gridWidth = p.x - mGridView.getPaddingStart() - mGridView.getPaddingEnd();
+		int elementWidth = getResources().getDimensionPixelSize(R.dimen.grid_size);
+		int count = gridWidth / elementWidth;
+		mGridView.setLayoutManager(new GridLayoutManager(this, count));
 		mGridView.addOnItemTouchListener(new RecyclerItemClickListener(this, new OnItemClickListener()));
 	}
 
