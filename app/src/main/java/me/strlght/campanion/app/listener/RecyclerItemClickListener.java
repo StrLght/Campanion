@@ -12,14 +12,23 @@ import android.view.View;
 public class RecyclerItemClickListener implements RecyclerView.OnItemTouchListener {
 
 	private OnItemClickListener mListener;
-	private GestureDetector mGestureDetector;
+	private GestureDetector mTapDetector;
+	private GestureDetector mDoubleTapDetector;
 
 	public RecyclerItemClickListener(Context context, OnItemClickListener listener) {
 		mListener = listener;
-		mGestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
+		mTapDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
 
 			@Override
 			public boolean onSingleTapUp(MotionEvent e) {
+				return true;
+			}
+
+		});
+		mDoubleTapDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
+
+			@Override
+			public boolean onDoubleTap(MotionEvent e) {
 				return true;
 			}
 
@@ -29,8 +38,12 @@ public class RecyclerItemClickListener implements RecyclerView.OnItemTouchListen
 	@Override
 	public boolean onInterceptTouchEvent(RecyclerView recyclerView, MotionEvent motionEvent) {
 		View v = recyclerView.findChildViewUnder(motionEvent.getX(), motionEvent.getY());
-		if (v != null && mListener != null && mGestureDetector.onTouchEvent(motionEvent)) {
-			mListener.onItemClick(v, recyclerView.getChildPosition(v));
+		if (v != null && mListener != null) {
+			if (mDoubleTapDetector.onTouchEvent(motionEvent)) {
+				mListener.onDoubleItemClick(v, recyclerView.getChildPosition(v));
+			} else if (mTapDetector.onTouchEvent(motionEvent)) {
+				mListener.onItemClick(v, recyclerView.getChildPosition(v));
+			}
 		}
 		return false;
 	}
@@ -42,6 +55,8 @@ public class RecyclerItemClickListener implements RecyclerView.OnItemTouchListen
 
 	public interface OnItemClickListener {
 		public void onItemClick(View view, int position);
+
+		public void onDoubleItemClick(View view, int position);
 	}
 
 }

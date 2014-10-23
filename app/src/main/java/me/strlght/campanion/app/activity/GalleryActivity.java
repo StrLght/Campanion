@@ -32,13 +32,10 @@ import java.util.List;
  */
 public class GalleryActivity extends Activity {
 
-	private static final long DOUBLE_TAP_INTERVAL = 400;
 	private static final int REQUEST_CODE = 1;
 	private final String mDirectory = FileUtils.getSaveDirectory().getAbsolutePath();
 	private RecyclerView mGridView;
 	private Menu mMenu;
-	private int mLastSelectedElement = -1;
-	private long mLastSelectedTime = 0;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -156,29 +153,23 @@ public class GalleryActivity extends Activity {
 		@Override
 		public void onItemClick(View view, int i) {
 			ImageDirectoryAdapter adapter = (ImageDirectoryAdapter) mGridView.getAdapter();
-			long time = System.currentTimeMillis();
-			List<File> selected = adapter.getSelected();
-			boolean isOneOrLessSelected = (selected.size() <= 1);
 			boolean isSelected = adapter.isSelected(i);
-			if (i == mLastSelectedElement
-					&& (time - mLastSelectedTime) <= DOUBLE_TAP_INTERVAL
-					&& isOneOrLessSelected
-					&& isSelected) {
-				if (selected.size() == 1) {
-					Intent intent = new Intent(GalleryActivity.this, PreviewActivity.class);
-					intent.putExtra(PreviewActivity.EXTRA_IMAGE_POSITION, i);
-					intent.putExtra(PreviewActivity.EXTRA_IMAGE_DIRECTORY, mDirectory);
-					startActivity(intent);
-					return;
-				}
-			}
 			adapter.setSelected(i, !isSelected);
-			mLastSelectedElement = i;
-			mLastSelectedTime = time;
-
 			boolean isOneElementSelected = (adapter.getSelected().size() == 1);
 			setMenuActionsEnabled(adapter.isAnySelected());
 			mMenu.findItem(R.id.action_edit).setEnabled(isOneElementSelected);
+		}
+
+		@Override
+		public void onDoubleItemClick(View view, int position) {
+			ImageDirectoryAdapter adapter = (ImageDirectoryAdapter) mGridView.getAdapter();
+			List<File> selected = adapter.getSelected();
+			if (selected.size() == 1 && adapter.isSelected(position)) {
+				Intent intent = new Intent(GalleryActivity.this, PreviewActivity.class);
+				intent.putExtra(PreviewActivity.EXTRA_IMAGE_POSITION, position);
+				intent.putExtra(PreviewActivity.EXTRA_IMAGE_DIRECTORY, mDirectory);
+				startActivity(intent);
+			}
 		}
 
 	}
