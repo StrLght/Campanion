@@ -12,6 +12,7 @@ import java.io.FilenameFilter;
 @SuppressWarnings("UnusedDeclaration")
 public class ImageObserver extends FileObserver {
 
+	private final Object mWaitLock = new Object();
 	private String mPath;
 	private ImageObserverCallback mCallback;
 	private Boolean mShouldWait = false;
@@ -35,11 +36,12 @@ public class ImageObserver extends FileObserver {
 		if ((i & FileObserver.MOVE_SELF) != 0) {
 			mPath = s;
 		}
-		if ((i & FileObserver.MODIFY) != 0) {
-			mShouldWait = true;
-		}
-		if ((i & FileObserver.CLOSE_WRITE) != 0) {
-			mShouldWait = false;
+		synchronized (mWaitLock) {
+			if ((i & FileObserver.CLOSE_WRITE) != 0) {
+				mShouldWait = false;
+			} else if ((i & FileObserver.MODIFY) != 0) {
+				mShouldWait = true;
+			}
 		}
 		if (mShouldWait) {
 			return;
