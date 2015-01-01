@@ -4,7 +4,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.hardware.Camera;
-import android.os.AsyncTask;
 import me.strlght.campanion.app.util.FileUtils;
 
 /**
@@ -17,24 +16,24 @@ public class StabilizedPictureCallback extends PictureCallback {
 
 	@Override
 	public void onPictureTaken(byte[] bytes, Camera camera) {
-		new SaveImageTask(getRoll(), getFacing()).execute(bytes);
+		getBackgroundHandler().post(new Saver(getRoll(), getFacing(), bytes));
 	}
 
-	private class SaveImageTask extends AsyncTask<byte[], Void, Void> {
+	private class Saver implements Runnable {
 
 		private final float mRoll;
 		private final int mFacing;
+		private final byte[] mBytes;
 
-		SaveImageTask(float roll, int facing) {
-			super();
-
+		public Saver(float roll, int facing, byte[] bytes) {
 			mRoll = roll;
 			mFacing = facing;
+			mBytes = bytes.clone();
 		}
 
 		@Override
-		protected Void doInBackground(byte[]... bytes) {
-			Bitmap img = BitmapFactory.decodeByteArray(bytes[0], 0, bytes[0].length);
+		public void run() {
+			Bitmap img = BitmapFactory.decodeByteArray(mBytes, 0, mBytes.length);
 			int originalWidth = img.getWidth();
 			int originalHeight = img.getHeight();
 			float k = (float) originalWidth / originalHeight;
@@ -54,10 +53,7 @@ public class StabilizedPictureCallback extends PictureCallback {
 			int centerX = img.getWidth() / 2;
 			int centerY = img.getHeight() / 2;
 			img = Bitmap.createBitmap(img, centerX - scaledWidth / 2, centerY - scaledHeight / 2, scaledWidth, scaledHeight);
-
 			FileUtils.save(getContext(), img);
-
-			return null;
 		}
 
 	}

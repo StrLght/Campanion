@@ -7,17 +7,20 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Point;
 import android.os.Bundle;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.Toast;
 import me.strlght.campanion.app.R;
 import me.strlght.campanion.app.adapter.ImageDirectoryAdapter;
 import me.strlght.campanion.app.listener.OnEditButtonClickListener;
+import me.strlght.campanion.app.listener.RecyclerItemClickListener;
 import me.strlght.campanion.app.util.AviaryUtils;
 import me.strlght.campanion.app.util.FileUtils;
 import me.strlght.campanion.app.util.ShareUtils;
@@ -31,13 +34,10 @@ import java.util.List;
  */
 public class GalleryActivity extends Activity {
 
-	private static final long DOUBLE_TAP_INTERVAL = 400;
 	private static final int REQUEST_CODE = 1;
 	private final String mDirectory = FileUtils.getSaveDirectory().getAbsolutePath();
-	private GridView mGridView;
-	private Menu mMenu;
-	private int mLastSelectedElement = -1;
-	private long mLastSelectedTime = 0;
+	private RecyclerView mGridView;
+	private ActionMode mActionMenu;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -49,8 +49,14 @@ public class GalleryActivity extends Activity {
 		ImageButton addButton = (ImageButton) findViewById(R.id.add_button);
 		addButton.setOnClickListener(new OnAddButtonClickListener());
 
-		mGridView = (GridView) findViewById(R.id.pictures_view);
-		mGridView.setOnItemClickListener(new OnItemClickListener());
+		mGridView = (RecyclerView) findViewById(R.id.pictures_view);
+		Point p = new Point();
+		getWindowManager().getDefaultDisplay().getSize(p);
+		int gridWidth = p.x - mGridView.getPaddingStart() - mGridView.getPaddingEnd();
+		int elementWidth = getResources().getDimensionPixelSize(R.dimen.grid_size);
+		int count = gridWidth / elementWidth;
+		mGridView.setLayoutManager(new GridLayoutManager(this, count));
+		mGridView.addOnItemTouchListener(new RecyclerItemClickListener(this, new OnItemClickListener()));
 	}
 
 	@Override
@@ -61,8 +67,7 @@ public class GalleryActivity extends Activity {
 	}
 
 	private void init() {
-		mGridView.setAdapter(new ImageDirectoryAdapter(getBaseContext(),
-				mDirectory));
+		mGridView.setAdapter(new ImageDirectoryAdapter(this, mDirectory));
 	}
 
 	@Override
@@ -82,17 +87,10 @@ public class GalleryActivity extends Activity {
 	}
 
 	private void setMenuActionsEnabled(boolean visibility) {
-		if (mMenu != null) {
-			setMenuItemEnabled(mMenu.findItem(R.id.action_edit), visibility);
-			setMenuItemEnabled(mMenu.findItem(R.id.action_share), visibility);
-			setMenuItemEnabled(mMenu.findItem(R.id.action_delete), visibility);
-			setMenuItemEnabled(mMenu.findItem(R.id.action_deselect), visibility);
-		}
-	}
-
-	private void setMenuItemEnabled(MenuItem item, boolean visibility) {
-		if (item != null) {
-			item.setEnabled(visibility);
+		if (mActionMenu == null && visibility) {
+			mActionMenu = startActionMode(new ActionMenu());
+		} else if (mActionMenu != null && !visibility) {
+			mActionMenu.finish();
 		}
 	}
 
@@ -122,63 +120,118 @@ public class GalleryActivity extends Activity {
 		getMenuInflater().inflate(R.menu.gallery, menu);
 
 		//TODO: add settings
-
-		mMenu = menu;
-
-		menu.findItem(R.id.action_edit).setOnMenuItemClickListener(new OnEditButtonClickListener(
-				new OnEditButtonClickListener.EditImageGetter() {
-
-					@Override
-					public File getImage() {
-						ImageDirectoryAdapter adapter = (ImageDirectoryAdapter) mGridView.getAdapter();
-						return (File) adapter.getItem(adapter.getFirstSelectedIndex());
-					}
-
-					@Override
-					public Activity getActivity() {
-						return GalleryActivity.this;
-					}
-
-				}));
-
-		menu.findItem(R.id.action_share).setOnMenuItemClickListener(new OnShareButtonClickListener());
-
-		menu.findItem(R.id.action_delete).setOnMenuItemClickListener(new OnDeleteButtonClickListener());
-
-		menu.findItem(R.id.action_deselect).setOnMenuItemClickListener(new OnCloseButtonClickListener());
-
 		return true;
 	}
 
-	private class OnItemClickListener implements GridView.OnItemClickListener {
+	private class ActionMenu implements ActionMode.Callback {
 
 		@Override
-		public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-			synchronized (this) {
-				ImageDirectoryAdapter adapter = (ImageDirectoryAdapter) mGridView.getAdapter();
-				long time = System.currentTimeMillis();
-				List<File> selected = adapter.getSelected();
-				boolean isOneOrLessSelected = (selected.size() <= 1);
-				boolean isSelected = adapter.isSelected(i);
-				if (i == mLastSelectedElement
-						&& (time - mLastSelectedTime) <= DOUBLE_TAP_INTERVAL
-						&& isOneOrLessSelected
-						&& isSelected) {
-					if (selected.size() == 1) {
-						Intent intent = new Intent(GalleryActivity.this, PreviewActivity.class);
-						intent.putExtra(PreviewActivity.EXTRA_IMAGE_POSITION, i);
-						intent.putExtra(PreviewActivity.EXTRA_IMAGE_DIRECTORY, mDirectory);
-						startActivity(intent);
-						return;
-					}
-				}
-				adapter.setSelected(i, !isSelected);
-				mLastSelectedElement = i;
-				mLastSelectedTime = time;
+		public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+			getMenuInflater().inflate(R.menu.gallery_action, menu);
+			return true;
+		}
 
-				boolean isOneElementSelected = (adapter.getSelected().size() == 1);
-				setMenuActionsEnabled(adapter.isAnySelected());
-				mMenu.findItem(R.id.action_edit).setEnabled(isOneElementSelected);
+		@Override
+		public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+			return false;
+		}
+
+		@Override
+		public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+			final ImageDirectoryAdapter adapter = (ImageDirectoryAdapter) mGridView.getAdapter();
+			switch (item.getItemId()) {
+				case R.id.action_edit:
+					OnEditButtonClickListener clickListener = new OnEditButtonClickListener(
+							new OnEditButtonClickListener.EditImageGetter() {
+
+								@Override
+								public File getImage() {
+									ImageDirectoryAdapter adapter = (ImageDirectoryAdapter) mGridView.getAdapter();
+									return adapter.getItem(adapter.getFirstSelectedIndex());
+								}
+
+								@Override
+								public Activity getActivity() {
+									return GalleryActivity.this;
+								}
+
+							});
+					clickListener.onMenuItemClick(item);
+					mode.finish();
+					return true;
+				case R.id.action_share:
+					List<File> files = adapter.getSelected();
+					if (files.size() == 1) {
+						ShareUtils.shareImage(GalleryActivity.this, files.get(0));
+					} else {
+						ShareUtils.shareImages(GalleryActivity.this, files);
+					}
+					mode.finish();
+					return true;
+				case R.id.action_delete:
+					final List<File> selection = adapter.getSelected();
+					AlertDialog.Builder builder = new AlertDialog.Builder(GalleryActivity.this);
+					builder.setMessage(R.string.delete_question)
+							.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+
+								@Override
+								public void onClick(DialogInterface dialogInterface, int i) {
+									adapter.stopWatching();
+									for (File image : selection) {
+										if (!FileUtils.delete(image)) {
+											Toast.makeText(getBaseContext(),
+													R.string.delete_fail, Toast.LENGTH_SHORT)
+													.show();
+										}
+									}
+									adapter.startWatching();
+								}
+
+							})
+							.setNegativeButton(android.R.string.no, null)
+							.create()
+							.show();
+					mode.finish();
+					return true;
+				default:
+					return false;
+			}
+		}
+
+		@Override
+		public void onDestroyActionMode(ActionMode mode) {
+			mActionMenu = null;
+			ImageDirectoryAdapter adapter = (ImageDirectoryAdapter) mGridView.getAdapter();
+			adapter.clearSelection();
+		}
+	}
+
+	private class OnItemClickListener implements RecyclerItemClickListener.OnItemClickListener {
+
+		@Override
+		public void onItemClick(View view, int i) {
+			ImageDirectoryAdapter adapter = (ImageDirectoryAdapter) mGridView.getAdapter();
+			boolean isSelected = adapter.isSelected(i);
+			adapter.setSelected(i, !isSelected);
+			boolean isOneElementSelected = (adapter.getSelected().size() == 1);
+			setMenuActionsEnabled(adapter.isAnySelected());
+			if (mActionMenu != null) {
+				MenuItem item = mActionMenu.getMenu().findItem(R.id.action_edit);
+				if (item != null) {
+					item.setEnabled(isOneElementSelected);
+				}
+			}
+		}
+
+		@Override
+		public void onDoubleItemClick(View view, int position) {
+			ImageDirectoryAdapter adapter = (ImageDirectoryAdapter) mGridView.getAdapter();
+			List<File> selected = adapter.getSelected();
+			if (selected.size() == 1 && adapter.isSelected(position)) {
+				Intent intent = new Intent(GalleryActivity.this, PreviewActivity.class);
+				intent.putExtra(PreviewActivity.EXTRA_IMAGE_POSITION, position);
+				intent.putExtra(PreviewActivity.EXTRA_IMAGE_DIRECTORY, mDirectory);
+				startActivity(intent);
 			}
 		}
 
@@ -202,68 +255,6 @@ public class GalleryActivity extends Activity {
 			intent.setType("image/*");
 			intent.addCategory(Intent.CATEGORY_OPENABLE);
 			startActivityForResult(intent, REQUEST_CODE);
-		}
-
-	}
-
-	private class OnShareButtonClickListener implements MenuItem.OnMenuItemClickListener {
-
-		@Override
-		public boolean onMenuItemClick(MenuItem menuItem) {
-			ImageDirectoryAdapter adapter = (ImageDirectoryAdapter) mGridView.getAdapter();
-			List<File> files = adapter.getSelected();
-			if (files.size() == 1) {
-				ShareUtils.shareImage(GalleryActivity.this, files.get(0));
-			} else {
-				ShareUtils.shareImages(GalleryActivity.this, files);
-			}
-			return true;
-		}
-
-	}
-
-	private class OnDeleteButtonClickListener implements MenuItem.OnMenuItemClickListener {
-
-		@Override
-		public boolean onMenuItemClick(MenuItem menuItem) {
-			AlertDialog.Builder builder = new AlertDialog.Builder(GalleryActivity.this);
-			builder.setMessage(R.string.delete_question)
-					.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-
-						@Override
-						public void onClick(DialogInterface dialogInterface, int i) {
-							ImageDirectoryAdapter adapter = (ImageDirectoryAdapter) mGridView.getAdapter();
-							List<File> selection = adapter.getSelected();
-							adapter.stopWatching();
-							for (File image : selection) {
-								if (!FileUtils.delete(image)) {
-									Toast.makeText(getBaseContext(),
-											R.string.delete_fail, Toast.LENGTH_SHORT)
-											.show();
-								}
-							}
-							setMenuActionsEnabled(false);
-							adapter.startWatching();
-						}
-
-					})
-					.setNegativeButton(android.R.string.no, null)
-					.create()
-					.show();
-
-			return true;
-		}
-
-	}
-
-	private class OnCloseButtonClickListener implements MenuItem.OnMenuItemClickListener {
-
-		@Override
-		public boolean onMenuItemClick(MenuItem menuItem) {
-			ImageDirectoryAdapter adapter = (ImageDirectoryAdapter) mGridView.getAdapter();
-			adapter.clearSelection();
-			setMenuActionsEnabled(false);
-			return true;
 		}
 
 	}
